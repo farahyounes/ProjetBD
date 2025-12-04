@@ -114,3 +114,59 @@ CREATE TABLE garde (
     CONSTRAINT fk_animal_id_garde FOREIGN KEY (animal_id) REFERENCES animal(animal_id)
 );
 
+
+-------Requètes-------
+
+--R1
+SELECT animal_id
+FROM animal
+WHERE espece = 'chat'
+AND caractere = 'calme'
+AND statut_adoption = 'disponible';
+
+--R2
+SELECT bnv_id
+FROM benevole b
+WHERE b.bnv_id NOT IN (SELECT r.bnv_id
+                        FROM realise r, mission m
+                        WHERE r.mission_id = m.mission_id
+                        AND description = 'nourrissage des chats');
+
+--R3
+SELECT animal_id
+FROM animal
+WHERE statut_adoption = 'adopté'
+AND EXTRACT(MONTH FROM date_depart_refuge) = 1; -- 1=janvier
+
+--R6
+SELECT refuge_id, animal_id
+FROM refuge r, animal a, garde g
+WHERE a.animal_id = r.animal_id
+AND a.animal_id = g.animal_id(+);  -- (+)=LEFT OUTER JOIN
+
+--R9
+SELECT AVG(date_depart_refuge - date_arrivee_refuge) AS durée_moyenne_séjour
+FROM animal
+WHERE statut_adoption = 'adopté';
+
+--R11
+SELECT count(r.mission_id) as nb_missions_juin, b.bnv_id
+FROM realise r, benevole b
+WHERE r.bnv_id = b.bnv_id
+AND EXTRACT(MONTH FROM r.deb_mission) = 6
+GROUP BY b.bnv_id;
+
+--R12
+SELECT *
+FROM (SELECT bnv_id
+        FROM benevole
+        ORDER BY date_arrivee ASC)
+WHERE ROWNUM <= 5;
+
+--R14 (A MODIFIER AVEC LA VUE)
+SELECT b.nom, animal_id
+FROM animal a, benevole b, adoptant ad
+WHERE b.nom = ad.nom
+AND a.adoptant_id = ad.adoptant_id
+AND a.statut_adoption = 'adopté'
+AND a.date_depart_refuge IS NOT NULL;
