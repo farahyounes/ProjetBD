@@ -140,12 +140,15 @@ AND EXTRACT(MONTH FROM date_depart_refuge) = 1; -- 1=janvier
 
 --R4
 
-SELECT 
-SELECT(COUNT(DISTINCT(a.animal_id)) as nb_tot_animaux),
+SELECT nb_total_animaux, nb_adoptions, nb_adoptions/nb_total_animaux as taux
+FROM(
+    SELECT
+ (SELECT COUNT(*) FROM animal) as nb_total_animaux,
 (SELECT COUNT(*)
-FROM animal a
+FROM animal
 WHERE statut_adoption='adopte'
-AND EXTRACT(YEAR FROM a.date_depart_refuge=)=2023) as nb_adoptions;
+AND EXTRACT(YEAR FROM date_depart_refuge)=2023) as nb_adoptions
+);
 
 
 --R5
