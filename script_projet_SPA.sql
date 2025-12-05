@@ -138,16 +138,66 @@ FROM animal
 WHERE statut_adoption = 'adopté'
 AND EXTRACT(MONTH FROM date_depart_refuge) = 1; -- 1=janvier
 
+--R4
+
+SELECT 
+SELECT(COUNT(DISTINCT(a.animal_id)) as nb_tot_animaux),
+(SELECT COUNT(*)
+FROM animal a
+WHERE statut_adoption='adopte'
+AND EXTRACT(YEAR FROM a.date_depart_refuge=)=2023) as nb_adoptions;
+
+
+--R5
+SELECT a.espece, a.sexe, AVG(a.age) as moy_age
+FROM animal a 
+GROUP BY a.espece, a.sexe;
+
 --R6
 SELECT refuge_id, animal_id
 FROM refuge r, animal a, garde g
 WHERE a.animal_id = r.animal_id
 AND a.animal_id = g.animal_id(+);  -- (+)=LEFT OUTER JOIN
 
+--R7
+SELECT r.refuge_id, r.nom
+FROM refuge r, animal a, mange m, fournis f
+WHERE r.refuge_id=a.refuge_id
+AND m.animal_id=a.animal_id
+AND f.alim_id=m.alim_id
+AND f.date_livraison='2023-09-01';
+
+--R8
+SELECT a.race
+FROM animal a
+WHERE a.statut_adoption='adopte'
+AND a.espece='chat'
+GROUP BY a.race
+HAVING COUNT(*)=(
+    SELECT MAX(COUNT(*))
+    FROM animal 
+    WHERE statut_adoption='adopte'
+    AND espece='chat'
+    GROUP BY race
+);
+
 --R9
 SELECT AVG(date_depart_refuge - date_arrivee_refuge) AS durée_moyenne_séjour
 FROM animal
 WHERE statut_adoption = 'adopté';
+
+--R10
+SELECT e.enclos_id
+FROM enclos e
+WHERE e.occupation .2;
+
+--ou?
+
+SELECT g.enclos_id
+FROM garde g
+GROUP BY g.enclos_id
+HAVING COUNT(g.animal_id) >2;
+
 
 --R11
 SELECT count(r.mission_id) as nb_missions_juin, b.bnv_id
@@ -163,6 +213,16 @@ FROM (SELECT bnv_id
         ORDER BY date_arrivee ASC)
 WHERE ROWNUM <= 5;
 
+--R13
+SELECT b.bnv_id, b.nom
+FROM benevole b, realise r, mission m, animal a
+WHERE b.bnv_id=r.bnv_id
+AND m.mission_id=r.mission_id
+AND m.description='nourris' 
+AND a.animal_id=r.animal_id
+AND a.nom='Twixie'
+AND r.deb_mission='2023-05-20';
+
 --R14 (A MODIFIER AVEC LA VUE)
 SELECT b.nom, animal_id
 FROM animal a, benevole b, adoptant ad
@@ -170,3 +230,4 @@ WHERE b.nom = ad.nom
 AND a.adoptant_id = ad.adoptant_id
 AND a.statut_adoption = 'adopté'
 AND a.date_depart_refuge IS NOT NULL;
+
