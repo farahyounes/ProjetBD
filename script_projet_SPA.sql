@@ -234,3 +234,56 @@ AND a.adoptant_id = ad.adoptant_id
 AND a.statut_adoption = 'adopté'
 AND a.date_depart_refuge IS NOT NULL;
 
+
+--R16
+SELECT adoptant_id, nom, nb_animaux_possedes
+FROM adoptant
+WHERE nb_animaux_possedes > 1;
+
+--R17
+SELECT A.animal_id, A.nom
+FROM animal A 
+WHERE NOT EXISTS (
+    SELECT *
+    FROM realise R, mission M
+    WHERE R.mission_id = M.mission_id
+    AND R.animal_id = A.animal_id
+    AND M.description LIKE '%soin%'
+);
+
+--R18
+SELECT AP.adoptant_id, AP.nom
+FROM adoption AD, adoptant AP, animal A 
+WHERE AD.adoptant_id = AP.adoptant_id
+AND AD.animal_id = A.animal_id
+AND A.etat_sante = 'fragile';
+
+--R20
+SELECT G.animal_id, A.nom, COUNT(DISTINCT G.enclos_ID) AS nb_enclos
+FROM garde G, animal A
+WHERE A.animal_id = G.animal_id
+GROUP BY G.animal_id, A.nom
+HAVING COUNT(DISTINCT G.enclos_id) > 2;
+
+--R21
+SELECT F.frs_id, FR.nom, F.refuge_id, R.nom, COUNT(DISTINCT FR.type_fourniture) AS nb_types_fournitures
+FROM fournis F, fournisseur FR, refuge R
+WHERE F.frs_id = FR.frs_id
+AND F.refuge_id = R.refuge_id
+GROUP BY F.frs_id, FR.nom, F.refuge_id, R.nom
+HAVING COUNT(DISTINCT FR.type_fourniture) >= 3;
+
+--R23
+SELECT A.animal_id, A.nom, AP.adoptant_id, AP.nom, (A.date_depart_refuge - A.date_arrivee_refuge) AS duree_sejour
+FROM adoption AD, animal A, adoptant AP
+WHERE AD.animal_id = A.animal_id
+AND AD.adoptant_id = AP.adoptant_id
+AND (A.date_depart_refuge - A.date_arrivee_refuge) > 180;
+
+--R24
+SELECT A.animal_id, A.nom, A.etat_sante, AL.type
+FROM mange M, animal A, alimentation AL
+WHERE M.animal_ID = A.animal_ID
+AND M.aliment_ID = AL.aliment_ID
+AND AL.type = 'croquette boeuf'  
+AND A.etat_sante = 'fragile';
