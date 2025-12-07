@@ -52,6 +52,9 @@ CREATE TABLE benevole (
     age NUMBER(2),
     mail VARCHAR(50),
     date_arrivee DATE
+    refuge_id NUMBER(3),
+    CONSTRAINT fk_refuge_id_bnv
+    FOREIGN KEY (refuge_id) REFERENCES refuge(refuge_id)
 );
 
 CREATE TABLE mission (
@@ -257,6 +260,18 @@ FROM adoption AD, adoptant AP, animal A
 WHERE AD.adoptant_id = AP.adoptant_id
 AND AD.animal_id = A.animal_id
 AND A.etat_sante = 'fragile';
+
+--R19
+SELECT b.refuge_id, b.bnv_id, COUNT(r.mission_id) as nb_missions
+FROM benevole b, realise r
+WHERE b.bnv_id = r.bnv_id
+GROUP BY b.refuge_id, b.bnv_id
+HAVING COUNT(r.mission_id) = 
+            (SELECT MAX(COUNT(r2.mission_id))
+            FROM benevole b2, realise r2
+            WHERE b2.bnv_id = r2.bnv_id
+            AND b2.refuge_id = b.refuge_id
+            GROUP BY b2.bnv_id);
 
 --R20
 SELECT G.animal_id, A.nom, COUNT(DISTINCT G.enclos_ID) AS nb_enclos
