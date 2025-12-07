@@ -237,6 +237,14 @@ AND a.adoptant_id = ad.adoptant_id
 AND a.statut_adoption = 'adopté'
 AND a.date_depart_refuge IS NOT NULL;
 
+--R15
+SELECT a.animal_ID, a.nom, MAX(r.fin_mission) as dernier_soin, (a.date_depart_refuge-MAX(r.fin_mission)) as delai --le max recup last soin
+FROM animal a, realise r, mission m
+WHERE a.animal_ID=r.animal_ID
+AND r.mission_id=m.mission_id 
+AND a.traitement='oui'
+AND m.description='soin'
+GROUP By a.animal_ID, a.nom, a.date_depart_refuge;
 
 --R16
 SELECT adoptant_id, nom, nb_animaux_possedes
@@ -287,6 +295,18 @@ WHERE F.frs_id = FR.frs_id
 AND F.refuge_id = R.refuge_id
 GROUP BY F.frs_id, FR.nom, F.refuge_id, R.nom
 HAVING COUNT(DISTINCT FR.type_fourniture) >= 3;
+
+--R22 
+SELECT a.espece, r.refuge_id, r.nom, COUNT(a.animal_ID) as nbr_animaux
+FROM animal a, refuge r 
+WHERE a.refuge_id=r.refuge_id
+GROUP BY a.espece, r.refuge_id, r.nom
+HAVING COUNT(*)=(
+    SELECT MAX(COUNT(*))
+    FROM animal a2
+    WHERE a2.espece=a.espece
+    GROUP BY a2.refuge_id
+);
 
 --R23
 SELECT A.animal_id, A.nom, AP.adoptant_id, AP.nom, (A.date_depart_refuge - A.date_arrivee_refuge) AS duree_sejour
