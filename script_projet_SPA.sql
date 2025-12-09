@@ -142,7 +142,6 @@ WHERE statut_adoption = 'adopté'
 AND EXTRACT(MONTH FROM date_depart_refuge) = 1; -- 1=janvier
 
 --R4
-
 SELECT nb_total_animaux, nb_adoptions, nb_adoptions/nb_total_animaux as taux
 FROM(
     SELECT
@@ -230,21 +229,20 @@ AND a.nom='Twixie'
 AND r.deb_mission='2023-05-20';
 
 --R14 (A MODIFIER AVEC LA VUE)
-SELECT b.nom, animal_id
-FROM animal a, benevole b, adoptant ad
+SELECT b.nom, v.animal_id
+FROM Vue_adoption v, benevole b, adoptant ad
 WHERE b.nom = ad.nom
-AND a.adoptant_id = ad.adoptant_id
-AND a.statut_adoption = 'adopté'
-AND a.date_depart_refuge IS NOT NULL;
+AND v.adoptant_id = ad.adoptant_id
+AND v.date_depart_refuge IS NOT NULL;
 
 --R15
-SELECT a.animal_ID, a.nom, MAX(r.fin_mission) as dernier_soin, (a.date_depart_refuge-MAX(r.fin_mission)) as delai --le max recup last soin
+SELECT a.animal_id, a.nom, MAX(r.fin_mission) as dernier_soin, (a.date_depart_refuge-MAX(r.fin_mission)) as delai --le max recup last soin
 FROM animal a, realise r, mission m
-WHERE a.animal_ID=r.animal_ID
+WHERE a.animal_id=r.animal_id
 AND r.mission_id=m.mission_id 
 AND a.traitement='oui'
 AND m.description='soin'
-GROUP By a.animal_ID, a.nom, a.date_depart_refuge;
+GROUP By a.animal_id, a.nom, a.date_depart_refuge;
 
 --R16
 SELECT adoptant_id, nom, nb_animaux_possedes
@@ -318,7 +316,22 @@ AND (A.date_depart_refuge - A.date_arrivee_refuge) > 180;
 --R24
 SELECT A.animal_id, A.nom, A.etat_sante, AL.type
 FROM mange M, animal A, alimentation AL
-WHERE M.animal_ID = A.animal_ID
-AND M.aliment_ID = AL.aliment_ID
+WHERE M.animal_id = A.animal_id
+AND M.aliment_id = AL.aliment_id
 AND AL.type = 'croquette boeuf'  
 AND A.etat_sante = 'fragile';
+
+
+------Vues------
+
+--V1
+CREATE VIEW Vue_animaux_disponibles
+SELECT animal_id
+FROM animal
+WHERE statut_adoption = 'disponible';
+
+--V2
+CREATE VIEW Vue_adoption
+SELECT animal_id, adoptant_id, date_depart_refuge
+FROM animal
+WHERE statut_adoption = 'adopté';
