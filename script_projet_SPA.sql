@@ -19,10 +19,11 @@ CREATE TABLE animal (
     etat_sante VARCHAR(10), -- 'sain' ou 'malade'
     statut_adoption VARCHAR(20),
     rstr_alim VARCHAR(20),
-    traitement CHAR(3), -- 'oui' ou 'non'
+    traitement VARCHAR(3), -- 'oui' ou 'non'
     refuge_id NUMBER(3),
-    CONSTRAINT fk_refuge_id_animal
-    FOREIGN KEY (refuge_id) REFERENCES refuge(refuge_id)
+    enclos_id NUMBER(3)
+    CONSTRAINT fk_refuge_id_animal FOREIGN KEY (refuge_id) REFERENCES refuge(refuge_id),
+    CONSTRAINT fk_enclos_id_animal FOREIGN KEY (enclos_id) REFERENCES enclos(enclos_id)
 );
 
 CREATE TABLE enclos (
@@ -39,8 +40,8 @@ CREATE TABLE adoptant (
     adoptant_id NUMBER(4) PRIMARY KEY,
     nom VARCHAR(20),
     age NUMBER(2),
-    espace_ext CHAR(3), -- 'oui' ou 'non'
-    profil_cherche VARCHAR(30),
+    espace_ext VARCHAR(3), -- 'oui' ou 'non'
+    profil_recherche VARCHAR(30),
     mail VARCHAR(50),
     nb_animaux_possedes NUMBER(2)
 );
@@ -51,7 +52,7 @@ CREATE TABLE benevole (
     fonction VARCHAR(30),
     age NUMBER(2),
     mail VARCHAR(50),
-    date_arrivee DATE
+    date_arrivee DATE,
     refuge_id NUMBER(3),
     CONSTRAINT fk_refuge_id_bnv
     FOREIGN KEY (refuge_id) REFERENCES refuge(refuge_id)
@@ -92,10 +93,12 @@ CREATE TABLE fournis (
     alim_id NUMBER(3),
     qte_fourniture NUMBER(3),
     prix_fourniture NUMBER(7,2),
+    refuge_id NUMBER(3),
     date_livraison DATE,
     PRIMARY KEY (frs_id, alim_id),
     CONSTRAINT fk_frs_id_fournis FOREIGN KEY (frs_id) REFERENCES fournisseur(frs_id),
-    CONSTRAINT fk_alim_id_fournis FOREIGN KEY (alim_id) REFERENCES alimentation(alim_id)
+    CONSTRAINT fk_alim_id_fournis FOREIGN KEY (alim_id) REFERENCES alimentation(alim_id),
+    CONSTRAINT fk_refuge_id_fournis FOREIGN KEY (refuge_id) REFERENCES refuge(refuge_id)
 );
 
 CREATE TABLE mange (
@@ -192,12 +195,6 @@ FROM animal
 WHERE statut_adoption = 'adopté';
 
 --R10
-SELECT e.enclos_id
-FROM enclos e
-WHERE e.occupation .2;
-
---ou?
-
 SELECT g.enclos_id
 FROM garde g
 GROUP BY g.enclos_id
@@ -590,7 +587,7 @@ INSERT INTO fournisseur VALUES (230, 'Animed', 'Soins dentaires');
 -- alimentation
 CREATE SEQUENCE seq_alim START WITH 1;
 
-INSERT INTO alimentation (aliment_ID, type_alim, qte_dispo)
+INSERT INTO alimentation (alim_id, type_alim, qte_dispo)
 SELECT seq_alim.NEXTVAL, aliment.type_alim, FLOOR(DBMS_RANDOM.VALUE(10, 90))
 FROM (
     SELECT 'croquette boeuf chien' AS type_alim FROM dual
@@ -634,7 +631,7 @@ INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail,
 VALUES (4, 'Mathis Renou', 21, 'oui', 'chat calme', 'mathisrenou@spa.com', '1')
 
 INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
-VALUES (5, 'Alex Costa', 20, 'oui', 'chien agité', 'alexcosta@spa.com', '6')
+VALUES (5, 'Alex Costa', 20, 'oui', 'chien agité', 'alexcosta@spa.com', '4')
 
 INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
 VALUES (6, 'Julien konstantinov', 20, 'non', 'chien agité', 'julienkonstantinov@spa.com', '0')
@@ -685,7 +682,7 @@ INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail,
 VALUES (21, 'Theo larouco', 21, 'oui', 'chat calme', 'theolarouco@spa.com', '1')
 
 INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
-VALUES (22, 'Julien Bignoles', 20, 'non', 'chien agité', 'julienbignoles@spa.com', '10')
+VALUES (22, 'Julien Bignoles', 20, 'non', 'chien agité', 'julienbignoles@spa.com', '2')
 
 INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
 VALUES (23, 'Frédérick Cremazy', 55, 'oui', 'chat agité', 'frederickcremazy@spa.com', '0')
@@ -709,7 +706,7 @@ INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail,
 VALUES (29, 'Lysa Percevault', 22, 'non', 'chat calme', 'lysapercevault@spa.com', '2')
 
 INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
-VALUES (30, 'Elouan Cossec', 20, 'non', 'chat calme', 'elouancossec@spa.com', '6')
+VALUES (30, 'Elouan Cossec', 20, 'non', 'chat calme', 'elouancossec@spa.com', '2')
 
 INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
 VALUES (31, 'Sophie Netter', 43, 'oui', 'chien calme', 'sophienetter@spa.com', '1')
@@ -781,7 +778,7 @@ SELECT enclos_id, animal_id,
     SYSDATE + DBMS_RANDOM.VALUE(0, 3),
     SYSDATE + DBMS_RANDOM.VALUE(0, 3) + DBMS_RANDOM.VALUE(7, 120)
 FROM enclos e
-JOIN animal a ON e.enclos_id = a.enclos_id;
+JOIN animal a ON e.enclos_id = a.enclos_id
 WHERE ROWNUM <=30;
 
 -- Mange 
