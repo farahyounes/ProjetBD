@@ -336,7 +336,24 @@ SELECT animal_id, adoptant_id, date_depart_refuge
 FROM animal
 WHERE statut_adoption = 'adopté';
 
+--V3
+CREATE VIEW vue_animaux_benevoles 
+SELECT a.animal_id, a.etat_sante, a.statut_adoption, a.caractere, a.rstr_alim, g.enclos_id
+FROM animal a, garde g
+WHERE a.animal_ID=g.animal_ID;
 
+--V4
+CREATE VIEW vue_enclos_benevoles 
+SELECT e.enclos_id, e.capacite, COUNT(g.animal_id) AS nbr_animaux_presents
+FROM enclos e, garde g 
+WHERE e.enclos_id=g.enclos_id
+GROUP BY e.enclos_id, e.capacite;
+
+--V5
+CREATE VIEW vue_missions_benevoles 
+SELECT r.mission_id, r.bnv_id, r.animal_id, r.deb_mission, r.fin_mission, m.description
+FROM realise r, mission m
+WHERE r.mission_id=m.mission_id;
 
 
 ------Triggers------
