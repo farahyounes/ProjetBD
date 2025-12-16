@@ -355,6 +355,26 @@ SELECT r.mission_id, r.bnv_id, r.animal_id, r.deb_mission, r.fin_mission, m.desc
 FROM realise r, mission m
 WHERE r.mission_id=m.mission_id;
 
+-- Comment benevole l’utilise:
+SELECT *
+FROM Vue_missions_benevoles
+WHERE benevole_ID = 2
+  AND statut IN ('assignée’);
+
+--V6
+CREATE VIEW vue_admin AS
+SELECT 
+    r.refuge_id,
+    r.nom AS nom_refuge,
+    (SELECT COUNT(*) FROM animal a WHERE a.refuge_id = r.refuge_id) AS nb_animaux,
+    (SELECT COUNT(*) FROM adoption ad WHERE ad.refuge_id = r.refuge_id) AS nb_adoptions,
+    (SELECT COUNT(*) FROM benevole b WHERE b.refuge_id = r.refuge_id) AS nb_benevoles,
+    (SELECT COUNT(*) FROM enclos e WHERE e.refuge_id = r.refuge_id AND e.occupation = 0) AS nb_enclos_libres,
+    (SELECT COUNT(*) FROM enclos e WHERE e.refuge_id = r.refuge_id AND e.occupation != 0) AS nb_enclos_occupees,
+    (SELECT COUNT(*) FROM Adoptant) AS nb_total_adoptants_globaux,
+    CURRENT_DATE AS date_derniere_mise_a_jour
+FROM refuge r;
+
 
 ------Triggers------
 
@@ -487,37 +507,37 @@ INSERT INTO refuge VALUES (225, 'SPA de Mulhouse', 'Mulhouse (Haut-Rhin)', 130);
 --mission
 INSERT INTO mission VALUES (1, 'Nettoyage quotidien des enclos des chiens', 'realisee');
 INSERT INTO mission VALUES (2, 'Nettoyage quotidien des enclos des chats', 'realisee');
-INSERT INTO mission VALUES (3, 'Désinfecter la zone de quarantaine', 'non realisee');
+INSERT INTO mission VALUES (3, 'Désinfecter la zone de quarantaine', 'assignée');
 INSERT INTO mission VALUES (4, 'Mise a jour des dossiers des animaux', 'non realisee');
-INSERT INTO mission VALUES (5, 'Distribution matinale des repas chiens', 'realisee');
+INSERT INTO mission VALUES (5, 'Distribution matinale des repas chiens', 'assignée');
 
 INSERT INTO mission VALUES (6, 'Activite stimulation chiens ', 'realisee');
-INSERT INTO mission VALUES (7, 'Validation finale du dossier adoption ', 'realisee');
+INSERT INTO mission VALUES (7, 'Validation finale du dossier adoption ', 'assignée');
 INSERT INTO mission VALUES (8, 'Promenade des chiens, matin', 'realisee');
 INSERT INTO mission VALUES (9, 'Promenade chiens, apres-midi', 'non realisee');
 INSERT INTO mission VALUES (10, 'Surveillance des animaux en soins', 'realisee');
 
 INSERT INTO mission VALUES (11, 'Administration soins medicaux', 'realisee');
 INSERT INTO mission VALUES (12, 'Transport animal veterinaire', 'realisee');
-INSERT INTO mission VALUES (13, 'Accueil nouveaux animaux refuge', 'realisee');
+INSERT INTO mission VALUES (13, 'Accueil nouveaux animaux refuge', 'assignée');
 INSERT INTO mission VALUES (14, 'Installation nouveaux arrivants', 'realisee');
 INSERT INTO mission VALUES (15, 'Suivi quarantaine animaux', 'realisee');
 
 INSERT INTO mission VALUES (16, 'Controle etat enclos', 'realisee');
 INSERT INTO mission VALUES (17, 'Reparation materiel enclos', 'non realisee');
 INSERT INTO mission VALUES (18, 'Nettoyage zone soins', 'realisee');
-INSERT INTO mission VALUES (19, 'Gestion stocks alimentaires', 'realisee');
+INSERT INTO mission VALUES (19, 'Gestion stocks alimentaires', 'assignée');
 INSERT INTO mission VALUES (20, 'Gestion stocks medicaux', 'non realisee');
 
 INSERT INTO mission VALUES (21, 'Preparation dossiers adoption', 'realisee');
 INSERT INTO mission VALUES (22, 'Mise a jour fiches animaux', 'realisee');
-INSERT INTO mission VALUES (23, 'Contact familles adoptantes', 'realisee');
+INSERT INTO mission VALUES (23, 'Contact familles adoptantes', 'assignée');
 INSERT INTO mission VALUES (24, 'Suivi post adoption', 'non realisee');
 INSERT INTO mission VALUES (25, 'Organisation planning benevoles', 'realisee');
 
 INSERT INTO mission VALUES (26, 'Aider a former les nouveaux benevoles', 'non realisee');
 INSERT INTO mission VALUES (27, 'Accueil public refuge', 'realisee');
-INSERT INTO mission VALUES (28, 'Sensibilisation à la protection animale', 'realisee');
+INSERT INTO mission VALUES (28, 'Sensibilisation à la protection animale', 'assignée');
 INSERT INTO mission VALUES (29, 'Archivage documents refuge', 'realisee');
 INSERT INTO mission VALUES (30, 'Preparation evenements du refuge', 'non realisee');
 
@@ -567,3 +587,209 @@ INSERT INTO fournisseur VALUES (228, 'MPS Italia', 'Caisses transport chiens');
 INSERT INTO fournisseur VALUES (229, 'Animed', 'Soins oculaires');
 INSERT INTO fournisseur VALUES (230, 'Animed', 'Soins dentaires');
 
+-- alimentation
+CREATE SEQUENCE seq_alim START WITH 1;
+
+INSERT INTO alimentation (aliment_ID, type_alim, qte_dispo)
+SELECT seq_alim.NEXTVAL, aliment.type_alim, FLOOR(DBMS_RANDOM.VALUE(10, 90))
+FROM (
+    SELECT 'croquette boeuf chien' AS type_alim FROM dual
+    UNION ALL
+    SELECT 'croquette poulet chien' FROM dual
+    UNION ALL
+    SELECT 'croquette boeuf chat' FROM dual
+    UNION ALL
+    SELECT 'croquette poulet chat' FROM dual
+    UNION ALL
+    SELECT 'patée chat' FROM dual
+    UNION ALL
+    SELECT 'patée chien' FROM dual
+) aliment
+CROSS JOIN (
+    SELECT LEVEL AS n FROM dual CONNECT BY LEVEL <= 5
+);
+
+-- enclos
+
+INSERT INTO enclos (enclos_id, capacite, type_enclos, occupation, refuge_id)
+SELECT seq_enclos.NEXTVAL, FLOOR(DBMS_RANDOM.VALUE(1, 5)), type_enclos, FLOOR(DBMS_RANDOM.VALUE(0, 5)), (SELECT refuge_id FROM refuge ORDER BY DBMS_RANDOM.VALUE FETCH FIRST 1 ROWS ONLY)  
+FROM (
+    SELECT 'chien' AS type_enclos FROM dual
+    UNION ALL
+    SELECT 'chat' FROM dual
+);
+
+-- adoptant 
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (1, 'Farah YOUNES', 20, 'oui', 'chat calme', 'farahyounes@spa.com', '0')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (2, 'Alyssa Morellon', 20, 'oui', 'chat agité', 'alyssamorellon@spa.com', '4')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (3, 'Mouna Guehairia', 20, 'non', 'chien calme', 'mounaguehairia@spa.com', '2')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (4, 'Mathis Renou', 21, 'oui', 'chat calme', 'mathisrenou@spa.com', '1')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (5, 'Alex Costa', 20, 'oui', 'chien agité', 'alexcosta@spa.com', '6')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (6, 'Julien konstantinov', 20, 'non', 'chien agité', 'julienkonstantinov@spa.com', '0')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (7, 'Hugo atlan', 23, 'oui', 'chat calme', 'hugoatlan@spa.com', '3')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (8, 'Emerson Kan', 21, 'non', 'chat calme', 'emersonkan@spa.com', '0')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (9, 'Samy Achaibou', 20, 'non', 'chat agité', 'samyachaibou@spa.com', '1')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (10, 'Béatrice Finance', 30, 'oui', 'chien calme', 'beatricefinance@spa.com', '0')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (11, 'Sandrine Vial', 15, 'oui', 'chat calme', 'sandrinevial@spa.com', '2')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (12, 'Ider Tseveendorj', 50, 'oui', 'chat calme', 'idertseveendorj@spa.com', '0')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (13, 'Franck Quessette', 22, 'non', 'chien agité', 'franckquessette@spa.com', '1')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (14, 'Thierry Mautor', 19, 'oui', 'chien calme', 'thierrymautor@spa.com', '2')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (15, 'Aurore Rincheval', 45, 'non', 'chat calme', 'aurorerincheval@spa.com', '0')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (16, 'Charles-henry Gattoliat', 23, 'oui', 'chat calme', 'charleshenrygattoliat@spa.com', '2')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (17, 'Sébastien Gaumer', 14, 'oui', 'chat agité', 'sébastiengaumer@spa.com', '3')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (18, 'Santiago Vargas Triana', 21, 'oui', 'chien calme', 'santiagovargastriana@spa.com', '0')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (19, 'Alexandre Mesbah', 33, 'oui', 'chien agité', 'alexandremesbah@spa.com', '2')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (20, 'Yohan Deray', 22, 'oui', 'chien calme', 'yohanderay@spa.com', '0')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (21, 'Theo larouco', 21, 'oui', 'chat calme', 'theolarouco@spa.com', '1')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (22, 'Julien Bignoles', 20, 'non', 'chien agité', 'julienbignoles@spa.com', '10')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (23, 'Frédérick Cremazy', 55, 'oui', 'chat agité', 'frederickcremazy@spa.com', '0')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (24, 'Lina Belkhir', 21, 'oui', 'chat calme', 'linabelkhir@spa.com', '4')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (25, 'Jessica karega', 21, 'non', 'chat calme', 'jessicakarega@spa.com', '0')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (26, 'Hassan Moudani', 25, 'oui', 'chat calme', 'hassanmoudani@spa.com', '1')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (27, 'Ines Scholler', 20, 'non', 'chat calme', 'inesscholler@spa.com', '0')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (28, 'Laurine Cantrel', 17, 'oui', 'chat calme', 'laurinecantrel@spa.com', '3')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (29, 'Lysa Percevault', 22, 'non', 'chat calme', 'lysapercevault@spa.com', '2')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (30, 'Elouan Cossec', 20, 'non', 'chat calme', 'elouancossec@spa.com', '6')
+
+INSERT INTO adoptant (adoptant_id, nom, age, espace_ext, profil_recherche, mail, nb_animaux_possedes)
+VALUES (31, 'Sophie Netter', 43, 'oui', 'chien calme', 'sophienetter@spa.com', '1')
+
+-- Réalise
+-- pour les soins faisables que par des vétérinaires
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+SELECT m.mission_id, b.bnv_id, a.animal_id,
+       SYSTIMESTAMP + DBMS_RANDOM.VALUE(0,5),  -- débute entre maintenant et +5 jours
+       SYSTIMESTAMP + DBMS_RANDOM.VALUE(5,10)   -- finit entre +5 et +10 jours
+FROM mission m
+JOIN benevole b ON b.fonction = 'veterinaire'       
+JOIN animal a ON a.etat_sante = 'malade'           
+WHERE ROWNUM <= 15;
+
+-- pour les missions basiques
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (1, 1, 100, TIMESTAMP '2025-12-16 09:00:00', TIMESTAMP '2025-12-16 11:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (2, 2, 101, TIMESTAMP '2025-12-16 10:00:00', TIMESTAMP '2025-12-16 12:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (3, 3, 102, TIMESTAMP '2025-12-16 11:00:00', TIMESTAMP '2025-12-16 13:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (4, 4, 103, TIMESTAMP '2025-12-16 13:00:00', TIMESTAMP '2025-12-16 15:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (5, 5, 104, TIMESTAMP '2025-12-16 14:00:00', TIMESTAMP '2025-12-16 16:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (6, 6, 105, TIMESTAMP '2025-12-17 09:00:00', TIMESTAMP '2025-12-17 11:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (7, 1, 106, TIMESTAMP '2025-12-17 11:00:00', TIMESTAMP '2025-12-17 13:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (8, 2, 107, TIMESTAMP '2025-12-17 13:00:00', TIMESTAMP '2025-12-17 15:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (9, 3, 108, TIMESTAMP '2025-12-17 15:00:00', TIMESTAMP '2025-12-17 17:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (10, 4, 109, TIMESTAMP '2025-12-18 09:00:00', TIMESTAMP '2025-12-18 11:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (11, 5, 110, TIMESTAMP '2025-12-18 11:00:00', TIMESTAMP '2025-12-18 13:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (12, 6, 111, TIMESTAMP '2025-12-18 13:00:00', TIMESTAMP '2025-12-18 15:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (13, 1, 112, TIMESTAMP '2025-12-19 09:00:00', TIMESTAMP '2025-12-19 11:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (14, 2, 113, TIMESTAMP '2025-12-19 11:00:00', TIMESTAMP '2025-12-19 13:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission) 
+VALUES (15, 3, 114, TIMESTAMP '2025-12-19 13:00:00', TIMESTAMP '2025-12-19 15:00:00');
+
+
+-- Gardé
+
+INSERT INTO garde (enclos_id, animal_id, deb_sejour, fin_sejour)
+SELECT enclos_id, animal_id, 
+    SYSDATE + DBMS_RANDOM.VALUE(0, 3),
+    SYSDATE + DBMS_RANDOM.VALUE(0, 3) + DBMS_RANDOM.VALUE(7, 120)
+FROM enclos e
+JOIN animal a ON e.enclos_id = a.enclos_id;
+WHERE ROWNUM <=30;
+
+-- Mange 
+
+INSERT INTO mange (animal_id, alim_id, qte_conso)
+SELECT a.animal_id, al.alim_id, TRUNC(DBMS_RANDOM.VALUE(100, 400))
+FROM animal a
+JOIN alimentation al
+    ON (a.espece = 'chat' AND al.type_alim LIKE '%chat%')
+    OR (a.espece = 'chien' AND al.type_alim LIKE '%chien%')
+WHERE ROWNUM <= 30;
