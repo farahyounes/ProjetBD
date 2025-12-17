@@ -387,6 +387,7 @@ CHECK (nb_animaux_possedes <= 4);
 --T3
 CREATE OR REPLACE TRIGGER trg_rstr_alim
 BEFORE INSERT OR UPDATE ON mange
+FOR EACH ROW
 DECLARE
     v_restriction VARCHAR2(30);
     v_type_alim  VARCHAR2(30);
@@ -411,33 +412,59 @@ END;
 --T4
 CREATE OR REPLACE TRIGGER trg_espace_enclos
 BEFORE INSERT OR UPDATE ON garde
-
 FOR EACH ROW
 DECLARE
-    v_especes_existantes VARCHAR(30);
-    v_especes_nouvelles VARCHAR(30);
+    espece_nouvelle VARCHAR2(30);
+    espece_existante VARCHAR2(30);
+    nombre_animaux NUMBER;
+    capacite_max NUMBER;
+    espece_incompatible EXCEPTION;
+    capacite_depassee EXCEPTION;
+    PRAGMA EXCEPTION_INIT(espece_incompatible, -20001);
+    PRAGMA EXCEPTION_INIT(capacite_depassee, -20002);
 BEGIN
-   SELECT espece
-   INTO v_especes_nouvelles
-   FROM animal a 
-   WHERE a.animal_id=:NEW.animal_id;
-
-   SELECT a.espece 
-   INTO v_especes_existantes
-   FROM animal a, garde g 
-   WHERE g.animal_id=a.animal_id
-   AND g.enclos_id= :NEW.enclos_id
-   AND ROWNUM=1;
-
-   IF v_especes_existantes <> v_especes_nouvelles THEN --Le <> pr verif si diff
-      RAISE_APPLICATION_ERROR(-20001, 'On ne peut pas mélanger différentes espèces dans un même enclos.');
-   END IF;
-
- EXCEPTION
- WHEN NO_DATA_FOUND THEN
-   NULL;
+    -- Récupère l'espèce de l'animal à ajouter
+    SELECT espece
+    INTO espece_nouvelle
+    FROM animal
+    WHERE id = :NEW.animal_id;
+    -- Vérifie si l'enclos contient déjà des animaux
+    SELECT COUNT(*)
+    INTO nombre_animaux
+    FROM garde
+    WHERE enclos_id = :NEW.enclos_id;
+    -- Récupère la capacité maximale de l'enclos
+    SELECT capacite
+    INTO capacite_max
+    FROM enclos
+    WHERE id = :NEW.enclos_id;
+    -- Vérifie si la capacité maximale est dépassée
+    IF nombre_animaux >= capacite_max THEN
+        RAISE capacite_depassee;
+    END IF;
+    -- Si l'enclos n'est pas vide, vérifie que les espèces sont compatibles
+    IF nombre_animaux > 0 THEN
+        SELECT a.espece
+        INTO espece_existante
+        FROM animal a, garde g
+        WHERE g.animal_id = a.id
+          AND g.enclos_id = :NEW.enclos_id
+          AND ROWNUM = 1;  -- On suppose que toutes les espèces dans l'enclos sont identiques
+-- Vérifie si l'espèce de l'animal à ajouter est différente
+        IF espece_existante != espece_nouvelle THEN
+            RAISE espece_incompatible;
+        END IF;
+    END IF;
+EXCEPTION
+    WHEN espece_incompatible THEN
+        RAISE_APPLICATION_ERROR(-20001, 'On ne peut pas mélanger différentes espèces dans un même enclos.');
+    WHEN capacite_depassee THEN
+        RAISE_APPLICATION_ERROR(-20002, 'La capacité maximale de l''enclos est atteinte.');
+    WHEN NO_DATA_FOUND THEN
+        NULL;  
 END;
 /
+
    
 --T5
 CREATE trg_age_min_animal
@@ -446,7 +473,7 @@ BEFORE UPDATE OF statut_adoption ON animal
 FOR EACH ROW
 BEGIN 
    IF :NEW.statut_adoption='adopte' 
-      AND :NEW.age <0.25 THEN
+      AND :NEW.age < 3 THEN
 
     RAISE_APPLICATION_ERROR(-20001, 'Un animal peut être adopté à partir de 3 mois');
    END IF;
@@ -458,6 +485,93 @@ END;
 ALTER TABLE benevole
 ADD CONSTRAINT chk_benevole_age
 CHECK(age>=18);
+
+--T7
+CREATE OR REPLACE TRIGGER benev_mission
+BEFORE INSERT OR UPDATE OF deb_mission, fin_mission, benevole_id ON realise
+FOR EACH ROW
+DECLARE
+    nb_mission NUMBER;
+BEGIN
+    IF :NEW.benevole_id IS NOT NULL THEN
+        SELECT COUNT(*)
+        INTO nb_mission
+        FROM realise r
+        WHERE r.benevole_id = :NEW.benevole_id
+          AND (r.mission_id != :NEW.mission_id OR :NEW.mission_id IS NULL)
+          AND :NEW.deb_mission <= NVL(r.fin_mission, TIMESTAMP '9999-12-31 23:59:59')
+          AND NVL(:NEW.fin_mission, TIMESTAMP '9999-12-31 23:59:59') >= r.deb_mission;
+
+        IF nb_mission > 0 THEN
+            RAISE_APPLICATION_ERROR(-20001,'Impossible d''assigner cette mission : le bénévole a déjà une mission en cours pendant cette période.');
+        END IF;
+    END IF;
+END;
+/
+
+--T8
+CREATE OR REPLACE TRIGGER soins_veterinaires
+BEFORE INSERT OR UPDATE OF benevole_id, animal_id ON realise
+FOR EACH ROW
+DECLARE
+    fonction_benev  benevole.fonction%TYPE;
+    sante_animal   animal.etat_sante%TYPE;
+    type_mission   mission.description%TYPE;
+BEGIN
+    -- Récupérer l'état de santé de l'animal
+    SELECT etat_sante
+    INTO sante_animal
+    FROM animal
+    WHERE animal_id = :NEW.animal_id;
+    -- Récupérer la fonction du bénévole
+    SELECT fonction
+    INTO fonction_benev
+    FROM benevole
+    WHERE benevole_id = :NEW.benevole_id;
+    -- Récupérer le type de mission
+    SELECT type_mission
+    INTO type_mission
+    FROM mission
+    WHERE mission_id = :NEW.mission_id;
+    -- Vérifier que seul un vétérinaire peut un soigner un animal malade
+    IF sante_animal = 'malade'
+       AND type_mission = 'soins vétérinaires'
+       AND fonction_benev <> 'vétérinaire'
+    THEN
+        RAISE_APPLICATION_ERROR(-20002,'Seul un bénévole vétérinaire peut effectuer des soins sur un animal malade.');
+    END IF;
+END;
+/
+
+--T9
+CREATE OR REPLACE TRIGGER animal_adopte_enclos
+BEFORE INSERT OR UPDATE OF animal_id ON garde
+FOR EACH ROW
+DECLARE
+    statut animal.statut_adoption%TYPE;
+BEGIN
+    SELECT statut_adoption
+    INTO statut
+    FROM animal
+    WHERE animal_id = :NEW.animal_id;
+
+    IF statut = 'adopté' THEN
+        RAISE_APPLICATION_ERROR(-20010,'Un animal adopté ne peut pas être affecté à un enclos.');
+    END IF;
+END;
+/
+
+--T10
+CREATE OR REPLACE TRIGGER maj_statut_animal_adoption
+AFTER INSERT ON adoption
+FOR EACH ROW
+BEGIN
+    UPDATE animal
+    SET statut_adoption = 'adopté'
+    WHERE animal_id = :NEW.animal_id
+      AND statut_adoption <> 'adopté';
+END;
+/
 
 --jeu de données
 
@@ -511,11 +625,11 @@ INSERT INTO mission VALUES (6, 'Activite stimulation chiens ', 'realisee');
 INSERT INTO mission VALUES (7, 'Validation finale du dossier adoption ', 'assignée');
 INSERT INTO mission VALUES (8, 'Promenade des chiens, matin', 'realisee');
 INSERT INTO mission VALUES (9, 'Promenade chiens, apres-midi', 'non realisee');
-INSERT INTO mission VALUES (10, 'Surveillance des animaux en soins', 'realisee');
+INSERT INTO mission VALUES (10, 'soins vétérinaires', 'realisee');
 
 INSERT INTO mission VALUES (11, 'Administration soins medicaux', 'realisee');
 INSERT INTO mission VALUES (12, 'Transport animal veterinaire', 'realisee');
-INSERT INTO mission VALUES (13, 'Accueil nouveaux animaux refuge', 'assignée');
+INSERT INTO mission VALUES (13, 'soins vétérinaires', 'assignée');
 INSERT INTO mission VALUES (14, 'Installation nouveaux arrivants', 'realisee');
 INSERT INTO mission VALUES (15, 'Suivi quarantaine animaux', 'realisee');
 
@@ -523,7 +637,7 @@ INSERT INTO mission VALUES (16, 'Controle etat enclos', 'realisee');
 INSERT INTO mission VALUES (17, 'Reparation materiel enclos', 'non realisee');
 INSERT INTO mission VALUES (18, 'Nettoyage zone soins', 'realisee');
 INSERT INTO mission VALUES (19, 'Gestion stocks alimentaires', 'assignée');
-INSERT INTO mission VALUES (20, 'Gestion stocks medicaux', 'non realisee');
+INSERT INTO mission VALUES (20, 'soins vétérinaires', 'non realisee');
 
 INSERT INTO mission VALUES (21, 'Preparation dossiers adoption', 'realisee');
 INSERT INTO mission VALUES (22, 'Mise a jour fiches animaux', 'realisee');
@@ -534,7 +648,7 @@ INSERT INTO mission VALUES (25, 'Organisation planning benevoles', 'realisee');
 INSERT INTO mission VALUES (26, 'Aider a former les nouveaux benevoles', 'non realisee');
 INSERT INTO mission VALUES (27, 'Accueil public refuge', 'realisee');
 INSERT INTO mission VALUES (28, 'Sensibilisation à la protection animale', 'assignée');
-INSERT INTO mission VALUES (29, 'Archivage documents refuge', 'realisee');
+INSERT INTO mission VALUES (29, 'soins vétérinaires', 'realisee');
 INSERT INTO mission VALUES (30, 'Preparation evenements du refuge', 'non realisee');
 
 --fournisseurs
@@ -733,7 +847,7 @@ INSERT INTO animal VALUES (230,'Atlas','chien','Berger australien',5,'M',DATE '2
 
 --Bénévole
 INSERT INTO benevole VALUES (401,'Laurent','soigneur animalier',27,'laurent@spa.fr',DATE '2023-09-12',101);
-INSERT INTO benevole VALUES (402,'Morel','agent de nettoyage enclos',34,'morel@spa.fr',DATE '2022-05-18',101);
+INSERT INTO benevole VALUES (402,'Morel','vétérinaire',34,'morel@spa.fr',DATE '2022-05-18',101);
 INSERT INTO benevole VALUES (403,'Lefevre','accueil du public',22,'lefevre@spa.fr',DATE '2024-02-03',102);
 INSERT INTO benevole VALUES (404,'Rousseau','responsable refuge',51,'rousseau@spa.fr',DATE '2016-11-10',102);
 INSERT INTO benevole VALUES (405,'Garcia','promeneur canin',25,'garcia@spa.fr',DATE '2023-07-01',103);
@@ -752,9 +866,9 @@ INSERT INTO benevole VALUES (417,'Picard','promeneur canin',26,'picard@spa.fr',D
 INSERT INTO benevole VALUES (418,'Gauthier','suivi post adoption',37,'gauthier@spa.fr',DATE '2020-10-19',109);
 INSERT INTO benevole VALUES (419,'Leroy','soins animaux',32,'leroy@spa.fr',DATE '2022-01-14',110);
 INSERT INTO benevole VALUES (420,'Caron','agent de nettoyage enclos',55,'caron@spa.fr',DATE '2015-05-30',110);
-INSERT INTO benevole VALUES (421,'Lopez','veterinaire',43,'lopez@spa.fr',DATE '2020-02-11',111);
+INSERT INTO benevole VALUES (421,'Lopez','vétérinaire',43,'lopez@spa.fr',DATE '2020-02-11',111);
 INSERT INTO benevole VALUES (422,'Martin','accueil animaux',21,'martin@spa.fr',DATE '2024-02-01',111);
-INSERT INTO benevole VALUES (423,'Robin','soigneur animalier',36,'robin@spa.fr',DATE '2021-06-23',112);
+INSERT INTO benevole VALUES (423,'Robin','vétérinaire',36,'robin@spa.fr',DATE '2021-06-23',112);
 INSERT INTO benevole VALUES (424,'Texier','administration',50,'texier@spa.fr',DATE '2016-09-15',112);
 INSERT INTO benevole VALUES (425,'Pelletier','gestion stocks',30,'pelletier@spa.fr',DATE '2022-11-07',113);
 INSERT INTO benevole VALUES (426,'Herve','agent de nettoyage enclos',27,'herve@spa.fr',DATE '2023-08-19',113);
