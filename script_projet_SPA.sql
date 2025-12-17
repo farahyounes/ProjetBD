@@ -371,6 +371,17 @@ SELECT
     CURRENT_DATE AS date_derniere_mise_a_jour
 FROM refuge r;
 
+--V7
+CREATE VIEW vue_enclos_libres AS
+SELECT e.enclos_id, e.capacite, e.type_enclos, e.refuge_id
+FROM enclos e
+WHERE e.enclos_id NOT IN (
+    SELECT g.enclos_id
+    FROM garde g
+    WHERE g.fin_sejour IS NULL
+);
+
+
 
 ------Triggers------
 
@@ -567,9 +578,9 @@ AFTER INSERT ON adoption
 FOR EACH ROW
 BEGIN
     UPDATE animal
-    SET statut_adoption = 'adopté'
+    SET statut_adoption = 'adopte'
     WHERE animal_id = :NEW.animal_id
-      AND statut_adoption <> 'adopté';
+      AND statut_adoption <> 'adopte';
 END;
 /
 
