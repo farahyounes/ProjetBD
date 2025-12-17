@@ -315,7 +315,7 @@ FROM mange M, animal A, alimentation AL
 WHERE M.animal_id = A.animal_id
 AND M.aliment_id = AL.aliment_id
 AND AL.type = 'croquette boeuf'  
-AND A.etat_sante = 'fragile';
+AND A.etat_sante = 'malade';
 
 
 ------Vues------
