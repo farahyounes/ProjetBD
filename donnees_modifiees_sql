@@ -1,0 +1,372 @@
+
+--jeu de données
+
+--refuge
+INSERT INTO refuge VALUES (101, 'SPA de Gennevilliers', 'Gennevilliers', 180);
+INSERT INTO refuge VALUES (102, 'SPA de Lyon Sud', 'Brignais', 140);
+INSERT INTO refuge VALUES (103, 'SPA de Marseille Provence', 'Marseille', 165);
+INSERT INTO refuge VALUES (104, 'SPA de Nantes', 'Carquefou', 95);
+INSERT INTO refuge VALUES (105, 'SPA de Strasbourg', 'Strasbourg', 120);
+
+INSERT INTO refuge VALUES (106, 'SPA de Lille', 'Lille', 110);
+INSERT INTO refuge VALUES (107, 'SPA de Toulouse', 'Toulouse', 150);
+INSERT INTO refuge VALUES (108, 'SPA de Bordeaux', 'Mérignac', 130);
+INSERT INTO refuge VALUES (109, 'SPA de Rennes', 'Rennes', 90);
+INSERT INTO refuge VALUES (110, 'SPA de Nice Côte d Azur', 'Nice', 160);
+
+INSERT INTO refuge VALUES (111, 'SPA de Roubaix', 'Roubaix', 200);
+INSERT INTO refuge VALUES (112, 'SPA de Tours', 'Tours', 85);
+INSERT INTO refuge VALUES (113, 'SPA Avignon', 'Avignon', 125);
+INSERT INTO refuge VALUES (114, 'SPA de Montpellier', 'Montpellier', 145);
+INSERT INTO refuge VALUES (115, 'SPA Orleans', 'Orléans', 100);
+
+INSERT INTO refuge VALUES (116, 'Refuge Arche de Noe', 'Versailles', 70);
+INSERT INTO refuge VALUES (117, 'Refuge Seconde Chance', 'Paris', 60);
+INSERT INTO refuge VALUES (118, 'Refuge Les Amis des Bêtes', 'Toulouse', 55);
+INSERT INTO refuge VALUES (119, 'Refuge Assistance Animale', 'Paris', 40);
+INSERT INTO refuge VALUES (120, 'Refuge Chats Sans Toit', 'Lyon', 75);
+
+INSERT INTO refuge VALUES (121, 'Fondation 30 Millions dAmis', 'Marseille', 90);
+INSERT INTO refuge VALUES (122, 'Refuge Ligue Protectrice', 'Lyon', 65);
+INSERT INTO refuge VALUES (123, 'Refuge Animaux en Detresse', 'Bordeaux', 105);
+INSERT INTO refuge VALUES (124, 'Refuge Vallée des Loups', 'Lille', 50);
+INSERT INTO refuge VALUES (125, 'Refuge Espoir Animal', 'Versailles', 80);
+
+INSERT INTO refuge VALUES (126, 'SPA de Perpignan', 'Perpignan', 115);
+INSERT INTO refuge VALUES (127, 'SPA de Clermont-Ferrand', 'Clermont-Ferrand', 98);
+INSERT INTO refuge VALUES (128, 'SPA de Limoges', 'Limoges', 72);
+INSERT INTO refuge VALUES (129, 'SPA de Besancon', 'Besançon', 68);
+INSERT INTO refuge VALUES (130, 'SPA de Mulhouse', 'Mulhouse', 130);
+
+-- adoptant 
+INSERT INTO adoptant VALUES (32, 'Eva Carvalhopinto', 21, 'oui', 'chien calme', 'evacarvalhopinto@spa.com', 2);
+INSERT INTO adoptant VALUES (33, 'Doriane Ramos', 20, 'oui', 'chat adulte', 'dorianeramos@spa.com', 1);
+INSERT INTO adoptant VALUES (32,'Laurent',27,'oui', 'chien affectueux','laurent@spa.fr', 0);
+
+
+--Bénévole
+INSERT INTO benevole VALUES (401,'Laurent','soigneur animalier',27,'laurent@spa.fr',DATE '2023-09-12',101);
+INSERT INTO benevole VALUES (402,'Morel','vétérinaire',34,'morel@spa.fr',DATE '2022-05-18',101);
+INSERT INTO benevole VALUES (403,'Lefevre','accueil du public',22,'lefevre@spa.fr',DATE '2024-02-03',102);
+INSERT INTO benevole VALUES (404,'Rousseau','responsable refuge',51,'rousseau@spa.fr',DATE '2016-11-10',102);
+INSERT INTO benevole VALUES (405,'Garcia','promeneur canin',25,'garcia@spa.fr',DATE '2023-07-01',103);
+INSERT INTO benevole VALUES (406,'Vidal','assistant vétérinaire',39,'vidal@spa.fr',DATE '2020-03-22',103);
+INSERT INTO benevole VALUES (407,'Blanchard','gestion adoptions',31,'blanchard@spa.fr',DATE '2021-10-05',104);
+INSERT INTO benevole VALUES (408,'Faivre','accueil animaux',28,'faivre@spa.fr',DATE '2022-06-14',104);
+INSERT INTO benevole VALUES (409,'Chevalier','responsable quarantaine',46,'chevalier@spa.fr',DATE '2018-01-09',105);
+INSERT INTO benevole VALUES (410,'Mercier','soigneur animalier',24,'mercier@spa.fr',DATE '2024-01-17',105);
+INSERT INTO benevole VALUES (411,'Benoit','promeneur canin',19,'benoit@spa.fr',DATE '2024-03-11',106);
+INSERT INTO benevole VALUES (412,'Collet','gestion stocks',44,'collet@spa.fr',DATE '2019-08-27',106);
+INSERT INTO benevole VALUES (413,'Renault','soins animaux',29,'renault@spa.fr',DATE '2023-02-15',107);
+INSERT INTO benevole VALUES (414,'Julien','accueil adoptants',33,'julien@spa.fr',DATE '2021-09-06',107);
+INSERT INTO benevole VALUES (415,'Marchal','agent technique',48,'marchal@spa.fr',DATE '2017-04-20',108);
+INSERT INTO benevole VALUES (416,'Lemoine','coordinateur benevoles',41,'lemoine@spa.fr',DATE '2019-12-02',108);
+INSERT INTO benevole VALUES (417,'Picard','promeneur canin',26,'picard@spa.fr',DATE '2023-06-08',109);
+INSERT INTO benevole VALUES (418,'Gauthier','suivi post adoption',37,'gauthier@spa.fr',DATE '2020-10-19',109);
+INSERT INTO benevole VALUES (419,'Leroy','soins animaux',32,'leroy@spa.fr',DATE '2022-01-14',110);
+INSERT INTO benevole VALUES (420,'Caron','agent de nettoyage enclos',55,'caron@spa.fr',DATE '2015-05-30',110);
+INSERT INTO benevole VALUES (421,'Lopez','vétérinaire',43,'lopez@spa.fr',DATE '2020-02-11',111);
+INSERT INTO benevole VALUES (422,'Martin','accueil animaux',21,'martin@spa.fr',DATE '2024-02-01',111);
+INSERT INTO benevole VALUES (423,'Robin','vétérinaire',36,'robin@spa.fr',DATE '2021-06-23',112);
+INSERT INTO benevole VALUES (424,'Texier','administration',50,'texier@spa.fr',DATE '2016-09-15',112);
+INSERT INTO benevole VALUES (425,'Pelletier','gestion stocks',30,'pelletier@spa.fr',DATE '2022-11-07',113);
+INSERT INTO benevole VALUES (426,'Herve','agent de nettoyage enclos',27,'herve@spa.fr',DATE '2023-08-19',113);
+INSERT INTO benevole VALUES (427,'Fernandez','sensibilisation publique',46,'ferdandez@spa.fr',DATE '2018-03-12',114);
+INSERT INTO benevole VALUES (428,'Mallet','accueil du public',23,'mallet@spa.fr',DATE '2024-01-10',114);
+INSERT INTO benevole VALUES (429,'Prevost','transport animaux',38,'prevost@spa.fr',DATE '2021-07-29',115);
+INSERT INTO benevole VALUES (430,'Alex','responsable site',57,'alex@spa.fr',DATE '2014-10-04',115);
+
+--Animal
+
+
+INSERT INTO animal VALUES (231,'Twixie','chat','Europeen',4,'F',DATE '2025-01-10',NULL,'chat calme','sain','adopte','croquettes saumon chat','non',101,20,NULL);
+INSERT INTO animal VALUES(232, 'Chanel', 'chat', 'Angora', 6,'M', DATE'2025-01-10', NULL, 'chat joueur', 'sain', 'adopte', 'croquettes boeuf chat', 'non', 102, 23, NULL)
+INSERT INTO animal VALUES (232,'Bella','chien','Labrador',3,'F',DATE '2023-11-05',DATE '2024-04-20','chien sociable','sain','adopte','croquettes poulet chien','non',NULL,15,NULL);
+INSERT INTO animal VALUES (233,'Nino','chat','Bengal',2,'M',DATE '2024-02-18',DATE '2024-07-01','chat joueur','sain','adopte','croquettes boeuf chat','non',NULL,23,NULL);
+INSERT INTO animal VALUES (234,'Raya','chien','Border collie',5,'F',DATE '2023-09-22',DATE '2024-02-28','chien craintif','sain','adopte','croquettes boeuf chien','non',NULL,13,NULL);
+INSERT INTO animal VALUES (232,'Bobby','chien','Labrador',5,'M',DATE '2024-11-01',NULL,'chien calme','malade','non adopte','croquette boeuf','oui',101,20,NULL);
+INSERT INTO animal VALUES (601,'Rex','chien','Berger',4,'M',DATE '2022-01-15',DATE '2022-09-15','chien calme','sain','adopte','croquettes chien','non',101,NULL,32);
+INSERT INTO animal VALUES (602,'Misty','chat','Europeen',3,'F',DATE '2021-02-01',DATE '2021-12-01','chat joueur','sain','adopte','croquettes chat','non',101,NULL,33);
+
+--mission
+INSERT INTO mission VALUES (1, 'Nettoyage quotidien des enclos des chiens', 'realisee');
+INSERT INTO mission VALUES (2, 'Nettoyage quotidien des enclos des chats', 'realisee');
+INSERT INTO mission VALUES (3, 'Désinfecter la zone de quarantaine', 'assignée');
+INSERT INTO mission VALUES (4, 'Mise a jour des dossiers des animaux', 'non realisee');
+INSERT INTO mission VALUES (5, 'Distribution matinale des repas chiens', 'assignée');
+
+INSERT INTO mission VALUES (6, 'Activite stimulation chiens ', 'realisee');
+INSERT INTO mission VALUES (7, 'Validation finale du dossier adoption ', 'assignée');
+INSERT INTO mission VALUES (8, 'Promenade des chiens, matin', 'realisee');
+INSERT INTO mission VALUES (9, 'Promenade chiens, apres-midi', 'non realisee');
+INSERT INTO mission VALUES (10, 'soins vétérinaires', 'realisee');
+
+INSERT INTO mission VALUES (11, 'Administration soins medicaux', 'realisee');
+INSERT INTO mission VALUES (12, 'Transport animal veterinaire', 'realisee');
+INSERT INTO mission VALUES (13, 'soins vétérinaires', 'assignée');
+INSERT INTO mission VALUES (14, 'Installation nouveaux arrivants', 'realisee');
+INSERT INTO mission VALUES (15, 'Suivi quarantaine animaux', 'realisee');
+
+INSERT INTO mission VALUES (16, 'Controle etat enclos', 'realisee');
+INSERT INTO mission VALUES (17, 'Reparation materiel enclos', 'non realisee');
+INSERT INTO mission VALUES (18, 'Nettoyage zone soins', 'realisee');
+INSERT INTO mission VALUES (19, 'Gestion stocks alimentaires', 'assignée');
+INSERT INTO mission VALUES (20, 'soins vétérinaires', 'non realisee');
+
+INSERT INTO mission VALUES (21, 'Preparation dossiers adoption', 'realisee');
+INSERT INTO mission VALUES (22, 'Mise a jour fiches animaux', 'realisee');
+INSERT INTO mission VALUES (23, 'Contact familles adoptantes', 'assignée');
+INSERT INTO mission VALUES (24, 'Suivi post adoption', 'non realisee');
+INSERT INTO mission VALUES (25, 'Organisation planning benevoles', 'realisee');
+
+INSERT INTO mission VALUES (26, 'Aider a former les nouveaux benevoles', 'non realisee');
+INSERT INTO mission VALUES (27, 'Accueil public refuge', 'realisee');
+INSERT INTO mission VALUES (28, 'Sensibilisation à la protection animale', 'assignée');
+INSERT INTO mission VALUES (29, 'soins vétérinaires', 'realisee');
+INSERT INTO mission VALUES (30, 'Preparation evenements du refuge', 'non realisee');
+
+--fournisseurs
+INSERT INTO fournisseur VALUES (201, 'Royal Canin', 'Croquettes chiens adultes');
+INSERT INTO fournisseur VALUES (202, 'Royal Canin', 'Croquettes chats stérilisés');
+INSERT INTO fournisseur VALUES (203, 'Royal Canin', 'Croquettes chiots');
+
+INSERT INTO fournisseur VALUES (204, 'Purina', 'Croquettes chats seniors');
+INSERT INTO fournisseur VALUES (205, 'Purina', 'Croquettes chiens sensibles');
+
+INSERT INTO fournisseur VALUES (206, 'Hills Vet', 'Médicaments');
+INSERT INTO fournisseur VALUES (207, 'Hills Vet', 'Régime rénal animaux');
+
+INSERT INTO fournisseur VALUES (208, 'Virbac', 'Médicaments');
+INSERT INTO fournisseur VALUES (209, 'Virbac', 'Produits antiparasitaires');
+
+INSERT INTO fournisseur VALUES (210, 'Beaphar', 'Antipuces et vermifuges');
+INSERT INTO fournisseur VALUES (211, 'Beaphar', 'Compléments nutritionnels');
+
+INSERT INTO fournisseur VALUES (212, 'Trixie', 'Jouets chiens');
+INSERT INTO fournisseur VALUES (213, 'Trixie', 'Jouets chats');
+INSERT INTO fournisseur VALUES (230, 'Trixie', 'Brosses et peignes');
+
+INSERT INTO fournisseur VALUES (214, 'Hunter', 'Colliers pour chiens');
+INSERT INTO fournisseur VALUES (215, 'Hunter', 'Laisses');
+
+INSERT INTO fournisseur VALUES (216, 'Ferplast', 'Cages');
+INSERT INTO fournisseur VALUES (217, 'Ferplast', 'Caisses de transport');
+
+INSERT INTO fournisseur VALUES (218, 'Cat Best', 'Litiere');
+INSERT INTO fournisseur VALUES (219, 'Cat Best', 'Litiere');
+
+INSERT INTO fournisseur VALUES (220, 'Saniterpen', 'Produits desinfection');
+INSERT INTO fournisseur VALUES (221, 'Saniterpen', 'Nettoyants bactericides');
+
+INSERT INTO fournisseur VALUES (222, 'Kerbl', 'Lampes chauffantes');
+INSERT INTO fournisseur VALUES (223, 'Kerbl', 'Cages');
+
+INSERT INTO fournisseur VALUES (224, 'Zooplus', 'Gamelles');
+INSERT INTO fournisseur VALUES (225, 'Zooplus', 'Paniers');
+
+INSERT INTO fournisseur VALUES (226, 'MPS Italia', 'Caisses transport chats');
+INSERT INTO fournisseur VALUES (227, 'MPS Italia', 'Caisses transport chiens');
+
+INSERT INTO fournisseur VALUES (228, 'Animed', 'Soins oculaires');
+INSERT INTO fournisseur VALUES (229, 'Animed', 'Soins dentaires');
+
+
+-- alimentation
+CREATE SEQUENCE seq_alim START WITH 1;
+
+INSERT INTO alimentation (alim_id, type_alim, qte_dispo)
+SELECT seq_alim.NEXTVAL, aliment.type_alim, FLOOR(DBMS_RANDOM.VALUE(10, 90))
+FROM (
+    SELECT 'croquette boeuf chien' AS type_alim FROM dual
+    UNION ALL
+    SELECT 'croquette poulet chien' FROM dual
+    UNION ALL
+    SELECT 'croquette boeuf chat' FROM dual
+    UNION ALL
+    SELECT 'croquette poulet chat' FROM dual
+    UNION ALL
+    SELECT 'croquette saumon chat' FROM dual
+    UNION ALL
+    SELECT 'patée chat' FROM dual
+    UNION ALL
+    SELECT 'patée chien' FROM dual
+) aliment
+CROSS JOIN (
+    SELECT LEVEL AS n FROM dual CONNECT BY LEVEL <= 5
+);
+
+-- enclos
+
+CREATE SEQUENCE seq_enclos START WITH 1;
+INSERT INTO enclos (enclos_id, capacite, type_enclos, occupation, refuge_id)
+SELECT seq_enclos.NEXTVAL, FLOOR(DBMS_RANDOM.VALUE(1, 5)), type_enclos, FLOOR(DBMS_RANDOM.VALUE(0, 5)), (SELECT refuge_id FROM refuge ORDER BY DBMS_RANDOM.VALUE FETCH FIRST 1 ROWS ONLY)  
+FROM (
+    SELECT 'chien' AS type_enclos FROM dual
+    UNION ALL
+    SELECT 'chat' FROM dual
+)
+CROSS JOIN(
+    SELECT LEVEL AS n FROM dual CONNECT BY LEVEL <=15
+);
+
+-- Réalise
+-- pour les soins faisables que par des vétérinaires
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+SELECT m.mission_id, b.bnv_id, a.animal_id,
+       SYSTIMESTAMP + DBMS_RANDOM.VALUE(0,5),  -- débute entre maintenant et +5 jours
+       SYSTIMESTAMP + DBMS_RANDOM.VALUE(5,10)   -- finit entre +5 et +10 jours
+FROM mission m
+JOIN benevole b ON b.fonction = 'vétérinaire'       
+JOIN animal a ON a.etat_sante = 'malade'           
+WHERE ROWNUM <= 15;
+
+-- pour les missions basiques, supplémentaires réalisées en juin 2025
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+VALUES (8, 401, 204, TIMESTAMP '2025-06-10 09:00:00', TIMESTAMP '2025-06-10 11:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+VALUES (14, 401, 205, TIMESTAMP '2025-06-15 14:00:00', TIMESTAMP '2025-06-15 16:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+VALUES (11, 402, 206, TIMESTAMP '2025-06-08 10:00:00', TIMESTAMP '2025-06-08 12:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+VALUES (16, 402, 207, TIMESTAMP '2025-06-22 15:00:00', TIMESTAMP '2025-06-22 17:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+VALUES (5,401,231,TIMESTAMP '2025-05-20 09:00:00',TIMESTAMP '2025-05-20 09:30:00');
+
+
+-- Gardé
+INSERT INTO garde (enclos_id, animal_id, deb_sejour, fin_sejour)
+SELECT
+  a.enclos_id,
+  a.animal_id,
+  SYSDATE + DBMS_RANDOM.VALUE(0, 3),
+  SYSDATE + DBMS_RANDOM.VALUE(7, 120)
+FROM animal a
+WHERE a.enclos_id IS NOT NULL;
+
+-- Mange 
+INSERT INTO mange (animal_id, alim_id, qte_conso)
+SELECT a.animal_id, al.alim_id, TRUNC(DBMS_RANDOM.VALUE(10, 80))
+FROM animal a
+JOIN alimentation al
+    ON (a.espece = 'chat' AND al.type_alim LIKE '%chat%')
+    OR (a.espece = 'chien' AND al.type_alim LIKE '%chien%')
+WHERE ROWNUM <= 30;
+
+-- fournis
+
+
+INSERT INTO fournis VALUES (201, 42, 50, 120, 101, DATE '2023-09-01');
+INSERT INTO fournis VALUES (202, 43, 30, 80, 102, DATE '2023-09-01');
+INSERT INTO fournis VALUES (203, 44, 40, 90, 103, DATE '2023-09-01');
+INSERT INTO fournis VALUES (204, 45, 25, 70, 104, DATE '2023-09-01');
+INSERT INTO fournis VALUES (205, 46, 35, 100, 105, DATE '2023-09-01');
+INSERT INTO fournis VALUES (206, 47, 20, 60, 106, DATE '2023-09-01');
+INSERT INTO fournis VALUES (201, 50, 40, 100, 101, DATE '2023-01-10');
+INSERT INTO fournis VALUES (201, 51, 35, 90, 101, DATE '2023-03-18'); 
+INSERT INTO fournis VALUES (201, 54, 30, 85, 101, DATE '2023-06-02');  
+
+--R1
+SELECT animal_id
+FROM animal
+WHERE espece = 'chat'
+AND caractere = 'chat calme'
+AND statut_adoption = 'disponible';
+
+--R2
+
+--R2 CHANGE cause description pas dans la table benev
+SELECT b.bnv_id, b.nom, b.fonction
+FROM benevole b
+WHERE b.bnv_id NOT IN (SELECT r.bnv_id
+                        FROM realise r, mission m
+                        WHERE r.mission_id = m.mission_id
+                        AND m.description LIKE '%nourrissage%'
+                        AND m.description LIKE '%chat%'
+                        );
+
+
+--R3
+SELECT animal_id, nom,espece
+FROM animal
+WHERE statut_adoption='adopte'
+AND date_arrivee_refuge IS NOT NULL
+AND EXTRACT(MONTH FROM date_depart_refuge) = 5 -- 1=janvier
+AND EXTRACT(YEAR FROM date_depart_refuge)=2025; 
+
+--R4
+SELECT nb_total_animaux, nb_adoptions, ROUND(nb_adoptions*1.0/nb_total_animaux,3) as taux
+FROM(
+    SELECT
+ (SELECT COUNT(*) FROM animal) as nb_total_animaux,
+(SELECT COUNT(*)
+FROM animal
+WHERE statut_adoption='adopte'
+AND EXTRACT(YEAR FROM date_depart_refuge)=2025) as nb_adoptions
+);
+
+--R5
+SELECT a.espece, a.sexe, ROUND(AVG(a.age),2) as moy_age
+FROM animal a 
+GROUP BY a.espece, a.sexe;
+
+
+--R6
+SELECT r.refuge_id, a.animal_id, e.enclos_id
+FROM refuge r, animal a, garde g, enclos e
+WHERE r.refuge_id=a.refuge_id
+AND a.animal_id = g.animal_id(+)
+AND g.enclos_id=e.enclos_id(+); 
+
+--R13
+SELECT b.bnv_id, b.nom
+FROM benevole b, realise r, mission m, animal a
+WHERE b.bnv_id=r.bnv_id
+AND r.mission_id= m.mission_id
+AND a.animal_id=r.animal_id
+AND a.nom='Twixie'
+AND m.description LIKE '%repas%' 
+AND TRUNC(r.deb_mission)=DATE'2025-05-20';
+
+
+--R18
+SELECT DISTINCT ap.adoptant_id, ap.nom
+FROM adoptant ap, animal a
+WHERE ap.adoptant_id = a.adoptant_id
+AND a.statut_adoption = 'reserve';
+
+
+--R20
+SELECT a.animal_id, a.nom,(g.fin_sejour - g.deb_sejour) AS duree_sejour
+FROM animal a, garde g
+WHERE a.animal_id = g.animal_id
+AND (g.fin_sejour - g.deb_sejour) > 30;
+
+
+--R21
+SELECT FR.nom as FR, R.nom AS R, COUNT(DISTINCT F.alim_id) AS nb_types_alimentation
+FROM fournis F, fournisseur FR, refuge R
+WHERE F.frs_id = FR.frs_id
+AND F.refuge_id = R.refuge_id
+GROUP BY FR.nom, R.nom
+HAVING COUNT(DISTINCT F.alim_id) >= 3;
+
+--R23
+SELECT A.animal_id, A.nom as nom_animal, AP.nom AS nom_adoptant, (A.date_depart_refuge - A.date_arrivee_refuge) AS duree_sejour
+FROM animal A, adoptant AP
+WHERE A.adoptant_id = AP.adoptant_id
+AND A.date_depart_refuge IS NOT NULL
+AND (A.date_depart_refuge - A.date_arrivee_refuge) > 90;
+
+--R24
+SELECT A.animal_id, A.nom, A.etat_sante, AL.type_alim
+FROM mange M, animal A, alimentation AL
+WHERE M.animal_id = A.animal_id
+AND M.alim_id = AL.alim_id
+AND AL.type_alim = 'croquette boeuf'  
+AND A.etat_sante = 'malade';
+
