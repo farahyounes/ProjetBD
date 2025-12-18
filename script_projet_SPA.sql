@@ -911,3 +911,21 @@ INSERT INTO fournis VALUES (214,6,45,120,127,DATE '2025-11-08');
 INSERT INTO fournis VALUES (214,7,15,40,128,DATE '2025-12-20');
 INSERT INTO fournis VALUES (201,1,50,120,129,DATE '2019-03-14');
 INSERT INTO fournis VALUES (202,2,30,80,130,DATE '2020-06-01');
+
+
+
+
+-- script liste_ora_constraints.sql
+
+-- quand on cree une table, Oracle stocke les regles (PK,FK, check...) dans des tables internes
+-- regles stockées dans user_constraints
+
+SELECT user_constraints.table_name, user_constraints.constraint_name, user_constraints.constraint_type, user_cons_columns.column_name, user_constraints.search_condition
+FROM user_constraints, user_cons_columns
+WHERE user_constraints.constraint_name=user_cons_columns.constraint_name
+ORDER BY user_constraints.table_name, user_constraints.constraint_type,user_constraints.constraint_name;
+
+-- script liste_ora_triggers.sql
+SELECT table_name, trigger_name,trigger_type, triggering_event, status, trigger_body
+FROM user_triggers
+ORDER BY table_name, trigger_name;
