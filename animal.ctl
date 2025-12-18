@@ -1,8 +1,8 @@
 LOAD DATA
-INFILE '/home/oracle/animal.csv'
+INFILE '/media/sf_IN513/ProjetBD/animal.csv'
 APPEND
 INTO TABLE animal
-FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' 
 TRAILING NULLCOLS
 (
     animal_id,

@@ -1,0 +1,153 @@
+
+SQL*Loader: Release 11.2.0.2.0 - Production on Thu Dec 18 12:54:52 2025
+
+Copyright (c) 1982, 2009, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   /media/sf_IN513/ProjetBD/animal.ctl
+Data File:      /media/sf_IN513/ProjetBD/animal.csv
+  Bad File:     /media/sf_IN513/ProjetBD/animal.bad
+  Discard File: /media/sf_IN513/ProjetBD/animal.dsc 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 0
+Errors allowed: 50
+Bind array:     64 rows, maximum of 256000 bytes
+Continuation:    none specified
+Path used:      Conventional
+
+Table ANIMAL, loaded from every logical record.
+Insert option in effect for this table: APPEND
+TRAILING NULLCOLS option in effect
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+ANIMAL_ID                           FIRST     *   ,  O(") CHARACTER            
+NOM                                  NEXT     *   ,  O(") CHARACTER            
+ESPECE                               NEXT     *   ,  O(") CHARACTER            
+RACE                                 NEXT     *   ,  O(") CHARACTER            
+AGE                                  NEXT     *   ,  O(") CHARACTER            
+SEXE                                 NEXT     *   ,  O(") CHARACTER            
+DATE_ARRIVEE_REFUGE                  NEXT     *   ,  O(") DATE YYYY-MM-DD      
+DATE_DEPART_REFUGE                   NEXT     *   ,  O(") DATE YYYY-MM-DD      
+CARACTERE                            NEXT     *   ,  O(") CHARACTER            
+ETAT_SANTE                           NEXT     *   ,  O(") CHARACTER            
+STATUT_ADOPTION                      NEXT     *   ,  O(") CHARACTER            
+RSTR_ALIM                            NEXT     *   ,  O(") CHARACTER            
+TRAITEMENT                           NEXT     *   ,  O(") CHARACTER            
+REFUGE_ID                            NEXT     *   ,  O(") CHARACTER            
+ENCLOS_ID                            NEXT     *   ,  O(") CHARACTER            
+ADOPTANT_ID                          NEXT     *   ,  O(") CHARACTER            
+
+value used for ROWS parameter changed from 64 to 62
+Record 1: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 2: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 3: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 4: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 5: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ADOPTANT_ID_ANIMAL) violated - parent key not found
+
+Record 6: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 7: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 8: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 9: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 10: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ADOPTANT_ID_ANIMAL) violated - parent key not found
+
+Record 11: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ADOPTANT_ID_ANIMAL) violated - parent key not found
+
+Record 12: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 13: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 14: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 15: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 16: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ADOPTANT_ID_ANIMAL) violated - parent key not found
+
+Record 17: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 18: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 19: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 20: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 21: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 22: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 23: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 24: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ADOPTANT_ID_ANIMAL) violated - parent key not found
+
+Record 25: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 26: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 27: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 28: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ENCLOS_ID_ANIMAL) violated - parent key not found
+
+Record 29: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ADOPTANT_ID_ANIMAL) violated - parent key not found
+
+Record 30: Rejected - Error on table ANIMAL.
+ORA-02291: integrity constraint (ETUDIANT.FK_ADOPTANT_ID_ANIMAL) violated - parent key not found
+
+
+Table ANIMAL:
+  0 Rows successfully loaded.
+  30 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+
+Space allocated for bind array:                 255936 bytes(62 rows)
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          0
+Total logical records read:            30
+Total logical records rejected:        30
+Total logical records discarded:        0
+
+Run began on Thu Dec 18 12:54:52 2025
+Run ended on Thu Dec 18 12:54:52 2025
+
+Elapsed time was:     00:00:00.30
+CPU time was:         00:00:00.02

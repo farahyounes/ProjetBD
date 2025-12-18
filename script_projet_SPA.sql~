@@ -573,14 +573,15 @@ END;
 
 --T10 change d'apres chat?
 CREATE OR REPLACE TRIGGER maj_statut_animal_adoption
-BEFORE UPDATE OF adoptant_id ON animal
+INSTEAD OF INSERT ON vue_adoption
 FOR EACH ROW
 BEGIN
-    -- Si un adoptant est renseigné et l'animal n'était pas encore adopté
-    IF :NEW.adoptant_id IS NOT NULL AND :OLD.statut_adoption <> 'adopte' THEN
-        :NEW.statut_adoption := 'adopte';
-        :NEW.date_depart_refuge := SYSDATE;  -- facultatif : date d'adoption
-    END IF;
+    INSERT INTO vue_adoption (adoption_id, animal_id, adoptant_id, date_adoption)
+    VALUES (:NEW.adoption_id, :NEW.animal_id, :NEW.adoptant_id, :NEW.date_adoption);
+
+    UPDATE animal
+    SET statut_adoption = 'adopté'
+    WHERE animal_id = :NEW.animal_id;
 END;
 /
 
