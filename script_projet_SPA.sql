@@ -382,6 +382,37 @@ WHERE NOT EXISTS (
       AND g.fin_sejour IS NULL
 );
 
+
+------Droits------
+CREATE ROLE role_admin;
+CREATE ROLE role_benevole;
+CREATE ROLE role_adoptant;
+
+--Accès admin
+GRANT SELECT, INSERT, UPDATE, DELETE ON animal TO role_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON benevole TO role_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON mission TO role_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON fournisseur TO role_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON fournis TO role_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON enclos TO role_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON refuge TO role_admin;
+GRANT SELECT ON vue_admin TO role_admin;
+
+--Accès bénévole
+GRANT SELECT ON animal TO role_benevole;
+GRANT SELECT ON enclos TO role_benevole;
+GRANT SELECT ON mission TO role_benevole;
+
+GRANT UPDATE (etat_sante, traitement, statut_adoption) ON animal TO role_benevole;
+GRANT UPDATE (statut) ON mission TO role_benevole;
+
+GRANT SELECT ON vue_animaux_dispo TO role_benevole;
+GRANT SELECT ON vue_missions_benevoles TO role_benevole;
+
+--Accès adoptant
+GRANT SELECT ON vue_animaux_dispo TO role_adoptant;
+
+
 ------Triggers------
 
 --T1
