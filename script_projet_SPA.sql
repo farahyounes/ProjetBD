@@ -837,12 +837,11 @@ SELECT m.mission_id, b.bnv_id, a.animal_id,
        SYSTIMESTAMP + DBMS_RANDOM.VALUE(0,5),  -- débute entre maintenant et +5 jours
        SYSTIMESTAMP + DBMS_RANDOM.VALUE(5,10)   -- finit entre +5 et +10 jours
 FROM mission m
-JOIN benevole b ON b.fonction = 'véterinaire'       
+JOIN benevole b ON b.fonction = 'vétérinaire'       
 JOIN animal a ON a.etat_sante = 'malade'           
 WHERE ROWNUM <= 15;
 
 -- pour les missions basiques
--- pour les missions basiques (IDS RÉELS)
 INSERT INTO realise VALUES (1, 401, 201, TIMESTAMP '2025-12-16 09:00:00', TIMESTAMP '2025-12-16 11:00:00');
 INSERT INTO realise VALUES (2, 402, 202, TIMESTAMP '2025-12-16 10:00:00', TIMESTAMP '2025-12-16 12:00:00');
 INSERT INTO realise VALUES (3, 403, 203, TIMESTAMP '2025-12-16 11:00:00', TIMESTAMP '2025-12-16 13:00:00');
@@ -864,12 +863,13 @@ INSERT INTO realise VALUES (15, 415, 215, TIMESTAMP '2025-12-19 13:00:00', TIMES
 
 -- Gardé
 INSERT INTO garde (enclos_id, animal_id, deb_sejour, fin_sejour)
-SELECT enclos_id, animal_id, 
-    SYSDATE + DBMS_RANDOM.VALUE(0, 3),
-    SYSDATE + DBMS_RANDOM.VALUE(0, 3) + DBMS_RANDOM.VALUE(7, 120)
-FROM enclos e
-JOIN animal a ON e.enclos_id = a.enclos_id
-WHERE ROWNUM <=30;
+SELECT
+  a.enclos_id,
+  a.animal_id,
+  SYSDATE + DBMS_RANDOM.VALUE(0, 3),
+  SYSDATE + DBMS_RANDOM.VALUE(7, 120)
+FROM animal a
+WHERE a.enclos_id IS NOT NULL;
 
 -- Mange 
 INSERT INTO mange (animal_id, alim_id, qte_conso)
