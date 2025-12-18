@@ -131,19 +131,22 @@ WHERE espece = 'chat'
 AND caractere = 'chat calme'
 AND statut_adoption = 'disponible';
 
---R2 CHANGE cause description pas dans la table benev
-SELECT bnv_id
+--R2 
+SELECT b.bnv_id, b.nom, b.fonction
 FROM benevole b
 WHERE b.bnv_id NOT IN (SELECT r.bnv_id
                         FROM realise r, mission m
                         WHERE r.mission_id = m.mission_id
-                        AND description = 'nourrissage des chats');
+                        AND m.description LIKE '%nourrissage%'
+                        AND m.description LIKE '%chat%'
+                        );
 
 --R3
-SELECT animal_id
+SELECT animal_id, nom,espece
 FROM animal
-WHERE statut_adoption = 'adopte'
-AND EXTRACT(MONTH FROM date_depart_refuge) = 1 -- 1=janvier
+WHERE statut_adoption='adopte'
+AND date_arrivee_refuge IS NOT NULL
+AND EXTRACT(MONTH FROM date_depart_refuge) = 5 -- 1=janvier
 AND EXTRACT(YEAR FROM date_depart_refuge)=2025; 
 
 --R4
@@ -158,15 +161,17 @@ AND EXTRACT(YEAR FROM date_depart_refuge)=2025) as nb_adoptions
 );
 
 --R5
-SELECT a.espece, a.sexe, AVG(a.age) as moy_age
+SELECT a.espece, a.sexe, ROUND(AVG(a.age),2) as moy_age
 FROM animal a 
 GROUP BY a.espece, a.sexe;
 
+
 --R6
-SELECT r.refuge_id, a.animal_id
-FROM refuge r, animal a, garde g
+SELECT r.refuge_id, a.animal_id, e.enclos_id
+FROM refuge r, animal a, garde g, enclos e
 WHERE r.refuge_id=a.refuge_id
-AND a.animal_id = g.animal_id(+);  -- (+)=LEFT OUTER JOIN
+AND a.animal_id = g.animal_id(+)
+AND g.enclos_id=e.enclos_id(+); 
 
 --R7
 SELECT r.refuge_id, r.nom, al.type_alim, f.qte_fourniture
@@ -190,7 +195,7 @@ HAVING COUNT(*)=(
 );
 
 --R9
-SELECT AVG(date_depart_refuge - date_arrivee_refuge) AS durée_moyenne_séjour
+SELECT ROUND(AVG(date_depart_refuge - date_arrivee_refuge),2) AS durée_moyenne_séjour
 FROM animal
 WHERE statut_adoption = 'adopte';
 
@@ -215,15 +220,16 @@ FROM (SELECT bnv_id
         ORDER BY date_arrivee ASC)
 WHERE ROWNUM <= 5;
 
---R13 REVOIRRRR
+
+--R13
 SELECT b.bnv_id, b.nom
 FROM benevole b, realise r, mission m, animal a
 WHERE b.bnv_id=r.bnv_id
-AND m.mission_id=r.mission_id
-AND m.description LIKE '%repas%' 
+AND r.mission_id= m.mission_id
 AND a.animal_id=r.animal_id
-AND a.nom='Kira'
-AND r.deb_mission=DATE'2025-12-16';
+AND a.nom='Twixie'
+AND m.description LIKE '%repas%' 
+AND TRUNC(r.deb_mission)=DATE'2025-05-20';
 
 --R14
 SELECT b.nom, v.animal_id
@@ -258,11 +264,11 @@ WHERE NOT EXISTS (
 );
 
 --R18
-SELECT ap.adoptant_id, ap.nom
-FROM adoptant ap, animal a 
-WHERE a.adoptant_id = ap.adoptant_id
-AND a.statut_adoption='adopte'
-AND a.etat_sante = 'malade';
+SELECT DISTINCT ap.adoptant_id, ap.nom
+FROM adoptant ap, animal a
+WHERE ap.adoptant_id = a.adoptant_id
+AND a.statut_adoption = 'reserve';
+
 
 --R19
 SELECT b.refuge_id, b.bnv_id, COUNT(r.mission_id) as nb_missions
@@ -276,20 +282,20 @@ HAVING COUNT(r.mission_id) =
             AND b2.refuge_id = b.refuge_id
             GROUP BY b2.bnv_id);
 
+
 --R20
-SELECT G.animal_id, A.nom, COUNT(DISTINCT G.enclos_ID) AS nb_enclos
-FROM garde G, animal A
-WHERE A.animal_id = G.animal_id
-GROUP BY G.animal_id, A.nom
-HAVING COUNT(DISTINCT G.enclos_id) > 2;
+SELECT a.animal_id, a.nom,(g.fin_sejour - g.deb_sejour) AS duree_sejour
+FROM animal a, garde g
+WHERE a.animal_id = g.animal_id
+AND (g.fin_sejour - g.deb_sejour) > 30;
 
 --R21
-SELECT F.frs_id, FR.nom, F.refuge_id, R.nom, COUNT(DISTINCT FR.type_fourniture) AS nb_types_fournitures
+SELECT FR.nom as FR, R.nom AS R, COUNT(DISTINCT F.alim_id) AS nb_types_alimentation
 FROM fournis F, fournisseur FR, refuge R
 WHERE F.frs_id = FR.frs_id
 AND F.refuge_id = R.refuge_id
-GROUP BY F.frs_id, FR.nom, F.refuge_id, R.nom
-HAVING COUNT(DISTINCT FR.type_fourniture) >= 3;
+GROUP BY FR.nom, R.nom
+HAVING COUNT(DISTINCT F.alim_id) >= 3;
 
 --R22 
 SELECT a.espece, r.refuge_id, r.nom, COUNT(a.animal_ID) as nbr_animaux
@@ -303,11 +309,13 @@ HAVING COUNT(*)=(
     GROUP BY a2.refuge_id
 );
 
+
 --R23
-SELECT A.animal_id, A.nom, AP.adoptant_id, AP.nom, (A.date_depart_refuge - A.date_arrivee_refuge) AS duree_sejour
+SELECT A.animal_id, A.nom as nom_animal, AP.nom AS nom_adoptant, (A.date_depart_refuge - A.date_arrivee_refuge) AS duree_sejour
 FROM animal A, adoptant AP
 WHERE A.adoptant_id = AP.adoptant_id
-AND (A.date_depart_refuge - A.date_arrivee_refuge) > 180;
+AND A.date_depart_refuge IS NOT NULL
+AND (A.date_depart_refuge - A.date_arrivee_refuge) > 90;
 
 --R24
 SELECT A.animal_id, A.nom, A.etat_sante, AL.type_alim
@@ -328,7 +336,7 @@ WHERE statut_adoption = 'disponible';
 
 --V2
 CREATE VIEW vue_adoption AS
-SELECT animal_id, adoptant_id, date_depart_refuge, refuge_id
+SELECT animal_id, adoptant_id, date_depart_refuge
 FROM animal
 WHERE statut_adoption = 'adopte';
 
@@ -363,54 +371,13 @@ SELECT
     r.refuge_id,
     r.nom AS nom_refuge,
     (SELECT COUNT(*) FROM animal a WHERE a.refuge_id = r.refuge_id) AS nb_animaux,
-    (SELECT COUNT(*) FROM vue_adoption WHERE refuge_id = r.refuge_id) AS nb_adoptions,
+    (SELECT COUNT(*) FROM vue_adoption v WHERE v.animal_id IN (SELECT a.animal_id FROM animal a WHERE a.refuge_id = r.refuge_id)) AS nb_adoptions,
     (SELECT COUNT(*) FROM benevole b WHERE b.refuge_id = r.refuge_id) AS nb_benevoles,
     (SELECT COUNT(*) FROM enclos e WHERE e.refuge_id = r.refuge_id AND e.occupation = 0) AS nb_enclos_libres,
     (SELECT COUNT(*) FROM enclos e WHERE e.refuge_id = r.refuge_id AND e.occupation != 0) AS nb_enclos_occupees,
-    (SELECT COUNT(*) FROM adoptant) AS nb_total_adoptants_globaux,
+    (SELECT COUNT(*) FROM Adoptant) AS nb_total_adoptants_globaux,
     CURRENT_DATE AS date_derniere_mise_a_jour
 FROM refuge r;
-
---V7
-CREATE VIEW vue_enclos_libres AS
-SELECT e.enclos_id , e.capacite , e.type_enclos , e.refuge_id
-FROM enclos e
-WHERE NOT EXISTS (
-    SELECT 1 
-    FROM garde g
-    WHERE g.enclos_id = e.enclos_id
-      AND g.fin_sejour IS NULL
-);
-
-
-------Droits------
-CREATE ROLE role_admin;
-CREATE ROLE role_benevole;
-CREATE ROLE role_adoptant;
-
---Accès admin
-GRANT SELECT, INSERT, UPDATE, DELETE ON animal TO role_admin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON benevole TO role_admin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON mission TO role_admin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON fournisseur TO role_admin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON fournis TO role_admin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON enclos TO role_admin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON refuge TO role_admin;
-GRANT SELECT ON vue_admin TO role_admin;
-
---Accès bénévole
-GRANT SELECT ON animal TO role_benevole;
-GRANT SELECT ON enclos TO role_benevole;
-GRANT SELECT ON mission TO role_benevole;
-
-GRANT UPDATE (etat_sante, traitement, statut_adoption) ON animal TO role_benevole;
-GRANT UPDATE (statut) ON mission TO role_benevole;
-
-GRANT SELECT ON vue_animaux_dispo TO role_benevole;
-GRANT SELECT ON vue_missions_benevoles TO role_benevole;
-
---Accès adoptant
-GRANT SELECT ON vue_animaux_dispo TO role_adoptant;
 
 
 ------Triggers------
@@ -604,14 +571,13 @@ END;
 
 --T10 change d'apres chat?
 CREATE OR REPLACE TRIGGER maj_statut_animal_adoption
-BEFORE UPDATE OF adoptant_id ON animal
+AFTER INSERT ON adoption
 FOR EACH ROW
 BEGIN
-    -- Si un adoptant est renseigné et l'animal n'était pas encore adopté
-    IF :NEW.adoptant_id IS NOT NULL AND :OLD.statut_adoption <> 'adopte' THEN
-        :NEW.statut_adoption := 'adopte';
-        :NEW.date_depart_refuge := SYSDATE;  -- facultatif : date d'adoption
-    END IF;
+    UPDATE animal
+    SET statut_adoption = 'adopté'
+    WHERE animal_id = :NEW.animal_id
+      AND statut_adoption <> 'adopté';
 END;
 /
 
@@ -686,6 +652,9 @@ INSERT INTO adoptant VALUES (28, 'Laurine Cantrel', 17, 'oui', 'chat calme', 'la
 INSERT INTO adoptant VALUES (29, 'Lysa Percevault', 22, 'non', 'chat sociable', 'lysapercevault@spa.com', 2);
 INSERT INTO adoptant VALUES (30, 'Elouan Cossec', 20, 'non', 'chat calme', 'elouancossec@spa.com', 2);
 INSERT INTO adoptant VALUES (31, 'Sophie Netter', 43, 'oui', 'chien sociable', 'sophienetter@spa.com', 1);
+INSERT INTO adoptant VALUES (32, 'Eva Carvalhopinto', 21, 'oui', 'chien calme', 'evacarvalhopinto@spa.com', 2);
+INSERT INTO adoptant VALUES (33, 'Doriane Ramos', 20, 'oui', 'chat adulte', 'dorianeramos@spa.com', 1);
+INSERT INTO adoptant VALUES (32,'Laurent',27,'oui', 'chien affectueux','laurent@spa.fr', 0);
 
 --Bénévole
 INSERT INTO benevole VALUES (401,'Laurent','soigneur animalier',27,'laurent@spa.fr',DATE '2023-09-12',101);
@@ -750,6 +719,14 @@ INSERT INTO animal VALUES (227,'Pacha','chat','Persan',2,'F',DATE '2024-03-14',N
 INSERT INTO animal VALUES (228,'Leo','chien','Teckel',7,'M',DATE '2020-08-09',NULL,'chien sociable','sain','disponible','croquettes boeuf chien','non',130,13,NULL);
 INSERT INTO animal VALUES (229,'Pote','chat','Maine coon',4,'F',DATE '2021-12-05',NULL,'chat independant','sain','reserve','patée chat','non',109,21,22);
 INSERT INTO animal VALUES (230,'Atlas','chien','Berger australien',5,'M',DATE '2021-10-30',NULL,'chien calme','sain','reserve','croquettes boeuf chien','non',111,14,23);
+INSERT INTO animal VALUES (231,'Twixie','chat','Europeen',4,'F',DATE '2025-01-10',NULL,'chat calme','sain','adopte','croquettes saumon chat','non',101,20,NULL);
+INSERT INTO animal VALUES(232, 'Chanel', 'chat', 'Angora', 6,'M', DATE'2025-01-10', NULL, 'chat joueur', 'sain', 'adopte', 'croquettes boeuf chat', 'non', 102, 23, NULL)
+INSERT INTO animal VALUES (232,'Bella','chien','Labrador',3,'F',DATE '2023-11-05',DATE '2024-04-20','chien sociable','sain','adopte','croquettes poulet chien','non',NULL,15,NULL);
+INSERT INTO animal VALUES (233,'Nino','chat','Bengal',2,'M',DATE '2024-02-18',DATE '2024-07-01','chat joueur','sain','adopte','croquettes boeuf chat','non',NULL,23,NULL);
+INSERT INTO animal VALUES (234,'Raya','chien','Border collie',5,'F',DATE '2023-09-22',DATE '2024-02-28','chien craintif','sain','adopte','croquettes boeuf chien','non',NULL,13,NULL);
+INSERT INTO animal VALUES (232,'Bobby','chien','Labrador',5,'M',DATE '2024-11-01',NULL,'chien calme','malade','non adopte','croquette boeuf','oui',101,20,NULL);
+INSERT INTO animal VALUES (601,'Rex','chien','Berger',4,'M',DATE '2022-01-15',DATE '2022-09-15','chien calme','sain','adopte','croquettes chien','non',101,NULL,32);
+INSERT INTO animal VALUES (602,'Misty','chat','Europeen',3,'F',DATE '2021-02-01',DATE '2021-12-01','chat joueur','sain','adopte','croquettes chat','non',101,NULL,33);
 
 --mission
 INSERT INTO mission VALUES (1, 'Nettoyage quotidien des enclos des chiens', 'realisee');
@@ -903,6 +880,23 @@ INSERT INTO realise VALUES (13, 413, 213, TIMESTAMP '2025-12-19 09:00:00', TIMES
 INSERT INTO realise VALUES (14, 414, 214, TIMESTAMP '2025-12-19 11:00:00', TIMESTAMP '2025-12-19 13:00:00');
 INSERT INTO realise VALUES (15, 415, 215, TIMESTAMP '2025-12-19 13:00:00', TIMESTAMP '2025-12-19 15:00:00');
 
+-- pour les missions basiques, supplémentaires réalisées en juin 2025
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+VALUES (8, 401, 204, TIMESTAMP '2025-06-10 09:00:00', TIMESTAMP '2025-06-10 11:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+VALUES (14, 401, 205, TIMESTAMP '2025-06-15 14:00:00', TIMESTAMP '2025-06-15 16:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+VALUES (11, 402, 206, TIMESTAMP '2025-06-08 10:00:00', TIMESTAMP '2025-06-08 12:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+VALUES (16, 402, 207, TIMESTAMP '2025-06-22 15:00:00', TIMESTAMP '2025-06-22 17:00:00');
+
+INSERT INTO realise (mission_id, bnv_id, animal_id, deb_mission, fin_mission)
+VALUES (5,401,231,TIMESTAMP '2025-05-20 09:00:00',TIMESTAMP '2025-05-20 09:30:00');
+
 -- Gardé
 INSERT INTO garde (enclos_id, animal_id, deb_sejour, fin_sejour)
 SELECT
@@ -953,7 +947,15 @@ INSERT INTO fournis VALUES (214,6,45,120,127,DATE '2025-11-08');
 INSERT INTO fournis VALUES (214,7,15,40,128,DATE '2025-12-20');
 INSERT INTO fournis VALUES (201,1,50,120,129,DATE '2019-03-14');
 INSERT INTO fournis VALUES (202,2,30,80,130,DATE '2020-06-01');
-
+INSERT INTO fournis VALUES (201, 42, 50, 120, 101, DATE '2023-09-01');
+INSERT INTO fournis VALUES (202, 43, 30, 80, 102, DATE '2023-09-01');
+INSERT INTO fournis VALUES (203, 44, 40, 90, 103, DATE '2023-09-01');
+INSERT INTO fournis VALUES (204, 45, 25, 70, 104, DATE '2023-09-01');
+INSERT INTO fournis VALUES (205, 46, 35, 100, 105, DATE '2023-09-01');
+INSERT INTO fournis VALUES (206, 47, 20, 60, 106, DATE '2023-09-01');
+INSERT INTO fournis VALUES (201, 50, 40, 100, 101, DATE '2023-01-10');
+INSERT INTO fournis VALUES (201, 51, 35, 90, 101, DATE '2023-03-18'); 
+INSERT INTO fournis VALUES (201, 54, 30, 85, 101, DATE '2023-06-02');  
 
 
 
