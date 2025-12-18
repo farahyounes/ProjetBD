@@ -363,7 +363,7 @@ SELECT
     r.refuge_id,
     r.nom AS nom_refuge,
     (SELECT COUNT(*) FROM animal a WHERE a.refuge_id = r.refuge_id) AS nb_animaux,
-    (SELECT COUNT(*) FROM adoption ad WHERE ad.refuge_id = r.refuge_id) AS nb_adoptions,
+    (SELECT COUNT(*) FROM vue_adoption WHERE ad.refuge_id = r.refuge_id) AS nb_adoptions,
     (SELECT COUNT(*) FROM benevole b WHERE b.refuge_id = r.refuge_id) AS nb_benevoles,
     (SELECT COUNT(*) FROM enclos e WHERE e.refuge_id = r.refuge_id AND e.occupation = 0) AS nb_enclos_libres,
     (SELECT COUNT(*) FROM enclos e WHERE e.refuge_id = r.refuge_id AND e.occupation != 0) AS nb_enclos_occupees,
@@ -371,6 +371,16 @@ SELECT
     CURRENT_DATE AS date_derniere_mise_a_jour
 FROM refuge r;
 
+--V7
+CREATE VIEW vue_enclos_libres AS
+SELECT e.enclos_id , e.capacite , e.type_enclos , e.refuge_id
+FROM enclos e
+WHERE NOT EXISTS (
+    SELECT 1 
+    FROM garde g
+    WHERE g.enclos_id = e.enclos_id
+      AND g.fin_sejour IS NULL
+);
 
 ------Triggers------
 
