@@ -143,17 +143,18 @@ WHERE b.bnv_id NOT IN (SELECT r.bnv_id
 SELECT animal_id
 FROM animal
 WHERE statut_adoption = 'adopte'
-AND EXTRACT(MONTH FROM date_depart_refuge) = 1; -- 1=janvier
+AND EXTRACT(MONTH FROM date_depart_refuge) = 1 -- 1=janvier
+AND EXTRACT(YEAR FROM date_depart_refuge)=2025; 
 
 --R4
-SELECT nb_total_animaux, nb_adoptions, nb_adoptions/nb_total_animaux as taux
+SELECT nb_total_animaux, nb_adoptions, ROUND(nb_adoptions*1.0/nb_total_animaux,3) as taux
 FROM(
     SELECT
  (SELECT COUNT(*) FROM animal) as nb_total_animaux,
 (SELECT COUNT(*)
 FROM animal
 WHERE statut_adoption='adopte'
-AND EXTRACT(YEAR FROM date_depart_refuge)=2023) as nb_adoptions
+AND EXTRACT(YEAR FROM date_depart_refuge)=2025) as nb_adoptions
 );
 
 --R5
@@ -162,18 +163,17 @@ FROM animal a
 GROUP BY a.espece, a.sexe;
 
 --R6
-SELECT refuge_id, animal_id
+SELECT r.refuge_id, a.animal_id
 FROM refuge r, animal a, garde g
-WHERE a.animal_id = r.animal_id
+WHERE r.refuge_id=a.refuge_id
 AND a.animal_id = g.animal_id(+);  -- (+)=LEFT OUTER JOIN
 
 --R7
-SELECT r.refuge_id, r.nom
-FROM refuge r, animal a, mange m, fournis f
-WHERE r.refuge_id=a.refuge_id
-AND m.animal_id=a.animal_id
-AND f.alim_id=m.alim_id
-AND f.date_livraison='2023-09-01';
+SELECT r.refuge_id, r.nom, al.type_alim, f.qte_fourniture
+FROM refuge r, alimentation al, fournis f
+WHERE r.refuge_id=f.refuge_id
+AND f.alim_id=al.alim_id
+AND f.date_livraison= DATE'2023-09-01';
 
 --R8
 SELECT a.race
@@ -371,17 +371,6 @@ SELECT
     CURRENT_DATE AS date_derniere_mise_a_jour
 FROM refuge r;
 
---V7
-CREATE VIEW vue_enclos_libres AS
-SELECT e.enclos_id, e.capacite, e.type_enclos, e.refuge_id
-FROM enclos e
-WHERE e.enclos_id NOT IN (
-    SELECT g.enclos_id
-    FROM garde g
-    WHERE g.fin_sejour IS NULL
-);
-
-
 
 ------Triggers------
 
@@ -578,9 +567,9 @@ AFTER INSERT ON adoption
 FOR EACH ROW
 BEGIN
     UPDATE animal
-    SET statut_adoption = 'adopte'
+    SET statut_adoption = 'adopté'
     WHERE animal_id = :NEW.animal_id
-      AND statut_adoption <> 'adopte';
+      AND statut_adoption <> 'adopté';
 END;
 /
 
@@ -662,7 +651,7 @@ INSERT INTO benevole VALUES (402,'Morel','vétérinaire',34,'morel@spa.fr',DATE 
 INSERT INTO benevole VALUES (403,'Lefevre','accueil du public',22,'lefevre@spa.fr',DATE '2024-02-03',102);
 INSERT INTO benevole VALUES (404,'Rousseau','responsable refuge',51,'rousseau@spa.fr',DATE '2016-11-10',102);
 INSERT INTO benevole VALUES (405,'Garcia','promeneur canin',25,'garcia@spa.fr',DATE '2023-07-01',103);
-INSERT INTO benevole VALUES (406,'Vidal','assistant veterinaire',39,'vidal@spa.fr',DATE '2020-03-22',103);
+INSERT INTO benevole VALUES (406,'Vidal','assistant vétérinaire',39,'vidal@spa.fr',DATE '2020-03-22',103);
 INSERT INTO benevole VALUES (407,'Blanchard','gestion adoptions',31,'blanchard@spa.fr',DATE '2021-10-05',104);
 INSERT INTO benevole VALUES (408,'Faivre','accueil animaux',28,'faivre@spa.fr',DATE '2022-06-14',104);
 INSERT INTO benevole VALUES (409,'Chevalier','responsable quarantaine',46,'chevalier@spa.fr',DATE '2018-01-09',105);
@@ -828,6 +817,7 @@ CROSS JOIN (
 );
 
 -- enclos
+
 CREATE SEQUENCE seq_enclos START WITH 1;
 INSERT INTO enclos (enclos_id, capacite, type_enclos, occupation, refuge_id)
 SELECT seq_enclos.NEXTVAL, FLOOR(DBMS_RANDOM.VALUE(1, 5)), type_enclos, FLOOR(DBMS_RANDOM.VALUE(0, 5)), (SELECT refuge_id FROM refuge ORDER BY DBMS_RANDOM.VALUE FETCH FIRST 1 ROWS ONLY)  
@@ -835,6 +825,9 @@ FROM (
     SELECT 'chien' AS type_enclos FROM dual
     UNION ALL
     SELECT 'chat' FROM dual
+)
+CROSS JOIN(
+    SELECT LEVEL AS n FROM dual CONNECT BY LEVEL <=15
 );
 
 -- Réalise
@@ -844,26 +837,30 @@ SELECT m.mission_id, b.bnv_id, a.animal_id,
        SYSTIMESTAMP + DBMS_RANDOM.VALUE(0,5),  -- débute entre maintenant et +5 jours
        SYSTIMESTAMP + DBMS_RANDOM.VALUE(5,10)   -- finit entre +5 et +10 jours
 FROM mission m
-JOIN benevole b ON b.fonction = 'veterinaire'       
+JOIN benevole b ON b.fonction = 'véterinaire'       
 JOIN animal a ON a.etat_sante = 'malade'           
 WHERE ROWNUM <= 15;
 
 -- pour les missions basiques
-INSERT INTO realise VALUES (1, 1, 100, TIMESTAMP '2025-12-16 09:00:00', TIMESTAMP '2025-12-16 11:00:00');
-INSERT INTO realise VALUES (2, 2, 101, TIMESTAMP '2025-12-16 10:00:00', TIMESTAMP '2025-12-16 12:00:00');
-INSERT INTO realise VALUES (3, 3, 102, TIMESTAMP '2025-12-16 11:00:00', TIMESTAMP '2025-12-16 13:00:00');
-INSERT INTO realise VALUES (4, 4, 103, TIMESTAMP '2025-12-16 13:00:00', TIMESTAMP '2025-12-16 15:00:00');
-INSERT INTO realise VALUES (5, 5, 104, TIMESTAMP '2025-12-16 14:00:00', TIMESTAMP '2025-12-16 16:00:00');
-INSERT INTO realise VALUES (6, 6, 105, TIMESTAMP '2025-12-17 09:00:00', TIMESTAMP '2025-12-17 11:00:00');
-INSERT INTO realise VALUES (7, 1, 106, TIMESTAMP '2025-12-17 11:00:00', TIMESTAMP '2025-12-17 13:00:00');
-INSERT INTO realise VALUES (8, 2, 107, TIMESTAMP '2025-12-17 13:00:00', TIMESTAMP '2025-12-17 15:00:00');
-INSERT INTO realise VALUES (9, 3, 108, TIMESTAMP '2025-12-17 15:00:00', TIMESTAMP '2025-12-17 17:00:00');
-INSERT INTO realise VALUES (10, 4, 109, TIMESTAMP '2025-12-18 09:00:00', TIMESTAMP '2025-12-18 11:00:00');
-INSERT INTO realise VALUES (11, 5, 110, TIMESTAMP '2025-12-18 11:00:00', TIMESTAMP '2025-12-18 13:00:00');
-INSERT INTO realise VALUES (12, 6, 111, TIMESTAMP '2025-12-18 13:00:00', TIMESTAMP '2025-12-18 15:00:00');
-INSERT INTO realise VALUES (13, 1, 112, TIMESTAMP '2025-12-19 09:00:00', TIMESTAMP '2025-12-19 11:00:00');
-INSERT INTO realise VALUES (14, 2, 113, TIMESTAMP '2025-12-19 11:00:00', TIMESTAMP '2025-12-19 13:00:00');
-INSERT INTO realise VALUES (15, 3, 114, TIMESTAMP '2025-12-19 13:00:00', TIMESTAMP '2025-12-19 15:00:00');
+-- pour les missions basiques (IDS RÉELS)
+INSERT INTO realise VALUES (1, 401, 201, TIMESTAMP '2025-12-16 09:00:00', TIMESTAMP '2025-12-16 11:00:00');
+INSERT INTO realise VALUES (2, 402, 202, TIMESTAMP '2025-12-16 10:00:00', TIMESTAMP '2025-12-16 12:00:00');
+INSERT INTO realise VALUES (3, 403, 203, TIMESTAMP '2025-12-16 11:00:00', TIMESTAMP '2025-12-16 13:00:00');
+INSERT INTO realise VALUES (4, 404, 204, TIMESTAMP '2025-12-16 13:00:00', TIMESTAMP '2025-12-16 15:00:00');
+INSERT INTO realise VALUES (5, 405, 205, TIMESTAMP '2025-12-16 14:00:00', TIMESTAMP '2025-12-16 16:00:00');
+
+INSERT INTO realise VALUES (6, 406, 206, TIMESTAMP '2025-12-17 09:00:00', TIMESTAMP '2025-12-17 11:00:00');
+INSERT INTO realise VALUES (7, 407, 207, TIMESTAMP '2025-12-17 11:00:00', TIMESTAMP '2025-12-17 13:00:00');
+INSERT INTO realise VALUES (8, 408, 208, TIMESTAMP '2025-12-17 13:00:00', TIMESTAMP '2025-12-17 15:00:00');
+INSERT INTO realise VALUES (9, 409, 209, TIMESTAMP '2025-12-17 15:00:00', TIMESTAMP '2025-12-17 17:00:00');
+
+INSERT INTO realise VALUES (10, 410, 210, TIMESTAMP '2025-12-18 09:00:00', TIMESTAMP '2025-12-18 11:00:00');
+INSERT INTO realise VALUES (11, 411, 211, TIMESTAMP '2025-12-18 11:00:00', TIMESTAMP '2025-12-18 13:00:00');
+INSERT INTO realise VALUES (12, 412, 212, TIMESTAMP '2025-12-18 13:00:00', TIMESTAMP '2025-12-18 15:00:00');
+
+INSERT INTO realise VALUES (13, 413, 213, TIMESTAMP '2025-12-19 09:00:00', TIMESTAMP '2025-12-19 11:00:00');
+INSERT INTO realise VALUES (14, 414, 214, TIMESTAMP '2025-12-19 11:00:00', TIMESTAMP '2025-12-19 13:00:00');
+INSERT INTO realise VALUES (15, 415, 215, TIMESTAMP '2025-12-19 13:00:00', TIMESTAMP '2025-12-19 15:00:00');
 
 -- Gardé
 INSERT INTO garde (enclos_id, animal_id, deb_sejour, fin_sejour)
@@ -876,7 +873,7 @@ WHERE ROWNUM <=30;
 
 -- Mange 
 INSERT INTO mange (animal_id, alim_id, qte_conso)
-SELECT a.animal_id, al.alim_id, TRUNC(DBMS_RANDOM.VALUE(100, 400))
+SELECT a.animal_id, al.alim_id, TRUNC(DBMS_RANDOM.VALUE(10, 80))
 FROM animal a
 JOIN alimentation al
     ON (a.espece = 'chat' AND al.type_alim LIKE '%chat%')
