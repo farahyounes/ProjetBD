@@ -131,7 +131,7 @@ WHERE espece = 'chat'
 AND caractere = 'chat calme'
 AND statut_adoption = 'disponible';
 
---R2
+--R2 CHANGE cause description pas dans la table benev
 SELECT bnv_id
 FROM benevole b
 WHERE b.bnv_id NOT IN (SELECT r.bnv_id
@@ -205,6 +205,7 @@ SELECT count(r.mission_id) as nb_missions_juin, b.bnv_id
 FROM realise r, benevole b
 WHERE r.bnv_id = b.bnv_id
 AND EXTRACT(MONTH FROM r.deb_mission) = 6
+AND EXTRACT(YEAR FROM r.deb_mission) = 2025
 GROUP BY b.bnv_id;
 
 --R12
@@ -214,21 +215,21 @@ FROM (SELECT bnv_id
         ORDER BY date_arrivee ASC)
 WHERE ROWNUM <= 5;
 
---R13
+--R13 REVOIRRRR
 SELECT b.bnv_id, b.nom
 FROM benevole b, realise r, mission m, animal a
 WHERE b.bnv_id=r.bnv_id
 AND m.mission_id=r.mission_id
-AND m.description LIKE '%nourri%' 
+AND m.description LIKE '%repas%' 
 AND a.animal_id=r.animal_id
-AND a.nom='Twixie'
-AND r.deb_mission='2023-05-20';
+AND a.nom='Kira'
+AND r.deb_mission=DATE'2025-12-16';
 
 --R14
 SELECT b.nom, v.animal_id
 FROM vue_adoption v, benevole b, adoptant ad
-WHERE b.nom = ad.nom
-AND v.adoptant_id = ad.adoptant_id
+WHERE v.adoptant_id = ad.adoptant_id
+AND ad.nom=b.nom
 AND v.date_depart_refuge IS NOT NULL;
 
 --R15
@@ -236,8 +237,8 @@ SELECT a.animal_id, a.nom, MAX(r.fin_mission) as dernier_soin, (a.date_depart_re
 FROM animal a, realise r, mission m
 WHERE a.animal_id=r.animal_id
 AND r.mission_id=m.mission_id 
-AND a.traitement='oui'
-AND m.description='soin'
+AND a.statut_adoption='adopte'
+AND m.description LIKE '%soin%'
 GROUP By a.animal_id, a.nom, a.date_depart_refuge;
 
 --R16
@@ -257,11 +258,11 @@ WHERE NOT EXISTS (
 );
 
 --R18
-SELECT AP.adoptant_id, AP.nom
-FROM adoption AD, adoptant AP, animal A 
-WHERE AD.adoptant_id = AP.adoptant_id
-AND AD.animal_id = A.animal_id
-AND A.etat_sante = 'fragile';
+SELECT ap.adoptant_id, ap.nom
+FROM adoptant ap, animal a 
+WHERE a.adoptant_id = ap.adoptant_id
+AND a.statut_adoption='adopte'
+AND a.etat_sante = 'malade';
 
 --R19
 SELECT b.refuge_id, b.bnv_id, COUNT(r.mission_id) as nb_missions
@@ -304,9 +305,8 @@ HAVING COUNT(*)=(
 
 --R23
 SELECT A.animal_id, A.nom, AP.adoptant_id, AP.nom, (A.date_depart_refuge - A.date_arrivee_refuge) AS duree_sejour
-FROM adoption AD, animal A, adoptant AP
-WHERE AD.animal_id = A.animal_id
-AND AD.adoptant_id = AP.adoptant_id
+FROM animal A, adoptant AP
+WHERE A.adoptant_id = AP.adoptant_id
 AND (A.date_depart_refuge - A.date_arrivee_refuge) > 180;
 
 --R24
@@ -377,7 +377,7 @@ FROM refuge r;
 --T1
 ALTER TABLE adoptant
 ADD CONSTRAINT chk_espace_ext
-CHECK (espace_ext = 'oui');
+CHECK (espace_ext IN('oui', 'non'));
 
 --T2
 ALTER TABLE adoptant
@@ -467,7 +467,7 @@ END;
 
    
 --T5
-CREATE trg_age_min_animal
+CREATE OR REPLACE TRIGGER trg_age_min_animal
 BEFORE UPDATE OF statut_adoption ON animal
 
 FOR EACH ROW
@@ -561,7 +561,7 @@ BEGIN
 END;
 /
 
---T10
+--T10 change d'apres chat?
 CREATE OR REPLACE TRIGGER maj_statut_animal_adoption
 AFTER INSERT ON adoption
 FOR EACH ROW
